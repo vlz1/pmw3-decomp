@@ -62,7 +62,7 @@ class Object:
             "extra_cflags": [],
             "extra_clang_flags": [],
             "lib": None,
-            "mw_version": None,
+            "toolchain_version": None,
             "progress_category": None,
             "scratch_preset_id": None,
             "shift_jis": None,
@@ -94,7 +94,7 @@ class Object:
         set_default("asflags", config.asflags)
         set_default("asm_dir", config.asm_dir)
         set_default("extab_padding", None)
-        set_default("mw_version", config.linker_version)
+        set_default("toolchain_version", config.linker_version)
         set_default("scratch_preset_id", config.scratch_preset_id)
         set_default("shift_jis", config.shift_jis)
         set_default("src_dir", config.src_dir)
@@ -478,7 +478,7 @@ def generate_build_ninja(
     n.variable("ldflags", make_flags_str(config.ldflags))
     if config.linker_version is None:
         sys.exit("ProjectConfig.linker_version missing")
-    n.variable("mw_version", Path(config.linker_version))
+    n.variable("toolchain_version", Path(config.linker_version))
     n.variable("objdiff_report_args", make_flags_str(config.progress_report_args))
     n.newline()
 
@@ -662,7 +662,7 @@ def generate_build_ninja(
     ###
     # Build rules
     ###
-    compiler_path = compilers / "$mw_version"
+    compiler_path = compilers / "$toolchain_version"
 
     # MWCC
     mwcc = compiler_path / "mwcceppc.exe"
@@ -689,12 +689,28 @@ def generate_build_ninja(
     mwcc_sjis_extab_cmd = f'{CHAIN}{mwcc_sjis_cmd} && {dtk} extab clean --padding "$extab_padding" $out $out'
     mwcc_sjis_extab_implicit: List[Optional[Path]] = [*mwcc_sjis_implicit, dtk]
 
+    # NGCCC
+    ngccc = compiler_path / "ngccc.exe"
+    if is_windows():
+        ngccc_cmd = f"{CHAIN}set SN_NGC_PATH={os.path.abspath(compiler_path)}&& {ngccc} $cflags -MMD -c -o $out $in"
+    else:
+        ngccc_cmd = f"env SN_NGC_PATH={os.path.abspath(compiler_path)} {wrapper_cmd}{ngccc} $cflags -MMD -c -o $out $in"
+    ngccc_implicit: List[Optional[Path]] = [
+        compilers_implicit or ngccc,
+        wrapper_implicit,
+    ]
+
     # MWLD
     mwld = compiler_path / "mwldeppc.exe"
     mwld_cmd = f"{wrapper_cmd}{mwld} $ldflags -o $out @$out.rsp"
     mwld_implicit: List[Optional[Path]] = [compilers_implicit or mwld, wrapper_implicit]
 
     # GNU as
+    ld_cmd = None
+    ld_implicit = None
+    # macOS has a very low default soft fd limit (256) which is not enough
+    # for linking hundreds of objects through wibo/wine.
+    ld_prefix = "ulimit -n 65536 && " if sys.platform == "darwin" else ""
     gnu_as = binutils / f"powerpc-eabi-as{EXE}"
     gnu_as_cmd = (
         f"{CHAIN}{gnu_as} $asflags -o $out $in" + f" && {dtk} elf fixup $out $out"
@@ -703,6 +719,14 @@ def generate_build_ninja(
     # As a workaround for https://github.com/encounter/dtk-template/issues/51
     # include macros.inc directly as an implicit dependency
     gnu_as_implicit.append(build_path / "include" / "macros.inc")
+
+    # NGCLD
+    ngcld = compiler_path / "ngcld.exe"
+    ld_cmd = f"{ld_prefix}{wrapper_cmd}{ngcld} $ldflags -o $out @$out.rsp"
+    ld_implicit: List[Optional[Path]] = [
+        compilers_implicit or ngcld,
+        wrapper_implicit,
+    ]
 
     if os.name != "nt":
         transform_dep = config.tools_dir / "transform_dep.py"
@@ -722,7 +746,7 @@ def generate_build_ninja(
     n.comment("Link ELF file")
     n.rule(
         name="link",
-        command=mwld_cmd,
+        command=ld_cmd,
         description="LINK $out",
         rspfile="$out.rsp",
         rspfile_content="$in_newline",
@@ -775,6 +799,16 @@ def generate_build_ninja(
         depfile="$basefile.d",
         deps="gcc",
     )
+
+    n.comment("ProDG build")
+    n.rule(
+        name="prodg",
+        command=ngccc_cmd,
+        description="ProDG $out",
+        depfile="$basefile.d",
+        deps="gcc",
+    )
+    n.newline()
 
     n.comment("Assemble asm")
     n.rule(
@@ -902,10 +936,10 @@ def generate_build_ninja(
             n.comment(f"Link {self.name}")
             if self.module_id == 0:
                 elf_path = build_path / f"{self.name}.elf"
-                elf_ldflags = f"$ldflags -lcf {serialize_path(self.ldscript)}"
+                elf_ldflags = "$ldflags"
                 if config.generate_map:
                     elf_map = map_path(elf_path)
-                    elf_ldflags += f" -map {serialize_path(elf_map)}"
+                    elf_ldflags += f" -Map {serialize_path(elf_map)}"
                 else:
                     elf_map = None
                 n.build(
@@ -988,7 +1022,7 @@ def generate_build_ninja(
                     rule="mwcc_pch_sjis" if shift_jis else "mwcc_pch",
                     inputs=f"include/{src_path_rel_str}",
                     variables={
-                        "mw_version": Path(pch["mw_version"]),
+                        "toolchain_version": Path(pch["toolchain_version"]),
                         "cflags": cflags_str,
                         "basedir": os.path.dirname(pch_out_abs_path),
                         "basefile": pch_out_abs_path.with_suffix(""),
@@ -1006,50 +1040,74 @@ def generate_build_ninja(
 
             cflags = obj.options["cflags"]
             extra_cflags = obj.options["extra_cflags"]
+            toolchain_version: str = obj.options["toolchain_version"]
+            is_mwcc: bool = toolchain_version.startswith(
+                "GC"
+            ) or toolchain_version.startswith("Wii")
+
+            def is_lang_flag(flag):
+                return (
+                    flag.startswith("-lang")
+                    or flag.startswith("-x")
+                    or flag in ("/TP", "/TC", "/Tp", "/Tc")
+                )
 
             # Add appropriate language flag if it doesn't exist already
             # Added directly to the source so it flows to other generation tasks
-            if not any(flag.startswith("-lang") for flag in cflags) and not any(
-                flag.startswith("-lang") for flag in extra_cflags
+            if not any(is_lang_flag(flag) for flag in cflags) and not any(
+                is_lang_flag(flag) for flag in extra_cflags
             ):
                 # Ensure extra_cflags is a unique instance,
                 # and insert into there to avoid modifying shared sets of flags
                 extra_cflags = obj.options["extra_cflags"] = list(extra_cflags)
-                if file_is_cpp(src_path):
-                    extra_cflags.insert(0, "-lang=c++")
+                if is_mwcc:
+                    if file_is_cpp(src_path):
+                        extra_cflags.insert(0, "-lang=c++")
+                    else:
+                        extra_cflags.insert(0, "-lang=c")
                 else:
-                    extra_cflags.insert(0, "-lang=c")
+                    extra_cflags.insert(0, "-x")
+                    if file_is_cpp(src_path):
+                        extra_cflags.insert(1, "c++")
+                    else:
+                        extra_cflags.insert(1, "c")
 
             all_cflags = cflags + extra_cflags
             cflags_str = make_flags_str(all_cflags)
-            used_compiler_versions.add(obj.options["mw_version"])
+            used_compiler_versions.add(toolchain_version)
 
             # Add MWCC build rule
             lib_name = obj.options["lib"]
-            build_rule = "mwcc"
-            build_implcit = mwcc_implicit
             variables = {
-                "mw_version": Path(obj.options["mw_version"]),
+                "toolchain_version": Path(obj.options["toolchain_version"]),
                 "cflags": cflags_str,
                 "basedir": os.path.dirname(obj.src_obj_path),
                 "basefile": obj.src_obj_path.with_suffix(""),
             }
 
-            if obj.options["shift_jis"] and obj.options["extab_padding"] is not None:
-                build_rule = "mwcc_sjis_extab"
-                build_implcit = mwcc_sjis_extab_implicit
-                variables["extab_padding"] = "".join(
-                    f"{i:02x}" for i in obj.options["extab_padding"]
-                )
-            elif obj.options["shift_jis"]:
-                build_rule = "mwcc_sjis"
-                build_implcit = mwcc_sjis_implicit
-            elif obj.options["extab_padding"] is not None:
-                build_rule = "mwcc_extab"
-                build_implcit = mwcc_extab_implicit
-                variables["extab_padding"] = "".join(
-                    f"{i:02x}" for i in obj.options["extab_padding"]
-                )
+            if is_mwcc:
+                build_rule = "mwcc"
+                build_implcit = mwcc_implicit
+
+                if obj.options["shift_jis"] and obj.options["extab_padding"] is not None:
+                    build_rule = "mwcc_sjis_extab"
+                    build_implcit = mwcc_sjis_extab_implicit
+                    variables["extab_padding"] = "".join(
+                        f"{i:02x}" for i in obj.options["extab_padding"]
+                    )
+                elif obj.options["shift_jis"]:
+                    build_rule = "mwcc_sjis"
+                    build_implcit = mwcc_sjis_implicit
+                elif obj.options["extab_padding"] is not None:
+                    build_rule = "mwcc_extab"
+                    build_implcit = mwcc_extab_implicit
+                    variables["extab_padding"] = "".join(
+                        f"{i:02x}" for i in obj.options["extab_padding"]
+                    )
+            else:
+                build_rule = "prodg"
+                build_implcit = ngccc_implicit
+                
             n.comment(f"{obj.name}: {lib_name} (linked {obj.completed})")
             n.build(
                 outputs=obj.src_obj_path,
@@ -1197,8 +1255,8 @@ def generate_build_ninja(
         n.newline()
 
         # Check if all compiler versions exist
-        for mw_version in used_compiler_versions:
-            mw_path = compilers / mw_version / "mwcceppc.exe"
+        for toolchain_version in used_compiler_versions:
+            mw_path = compilers / toolchain_version / "mwcceppc.exe"
             if config.compilers_path and not os.path.exists(mw_path):
                 sys.exit(f"Compiler {mw_path} does not exist")
 
@@ -1630,6 +1688,11 @@ def generate_objdiff_config(
         "Wii/1.5": "mwcc_43_188",
         "Wii/1.6": "mwcc_43_202",
         "Wii/1.7": "mwcc_43_213",
+        "ProDG/3.5": "prodg_35",
+        "ProDG/3.5b140": "prodg_35_b140",
+        "ProDG/3.7": "prodg_37",
+        "ProDG/3.8.1": "prodg_381",
+        "ProDG/3.9.3": "prodg_393"
     }
 
     def add_unit(
@@ -1691,9 +1754,9 @@ def generate_objdiff_config(
                 elif value == "nodeferred":
                     reverse_fn_order = False
 
-        compiler_version = COMPILER_MAP.get(obj.options["mw_version"])
+        compiler_version = COMPILER_MAP.get(obj.options["toolchain_version"])
         if compiler_version is None:
-            print(f"Missing scratch compiler mapping for {obj.options['mw_version']}")
+            print(f"Missing scratch compiler mapping for {obj.options['toolchain_version']}")
         else:
             cflags_str = make_flags_str(all_cflags)
             unit_config["scratch"] = {

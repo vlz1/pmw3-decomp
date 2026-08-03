@@ -1,0 +1,34 @@
+Sections:
+	.init       type:code align:32
+	.text       type:code align:32
+	.ctors      type:rodata align:32
+	.dtors      type:rodata align:32
+	.rodata     type:rodata align:8
+	.data       type:data align:32
+	.bss        type:bss align:4
+	.sdata      type:data align:4
+	.sbss       type:bss align:4
+	.sdata2     type:rodata align:32
+
+dolphin/src/base/PPCArch.c:
+	.text       start:0x801E291C end:0x801E2A54
+
+dolphin/src/os/OSError.c:
+	.text       start:0x801E4F60 end:0x801E560C
+	.data       start:0x803B75F0 end:0x803B7910
+	.bss        start:0x8041A870 end:0x8041A8AC
+
+dolphin/src/os/__start.c:
+	.init       start:0x80003100 end:0x80003270
+
+dolphin/src/os/__ppc_eabi_init.c:
+	.init       start:0x80003270 end:0x80003294
+	.text       start:0x801E8D24 end:0x801E8DD8
+
+Babel/Common/src/bKernel/crc32.cpp:
+	.text       start:0x802B0468 end:0x802B04F0
+	.bss        start:0x8044051C end:0x8044091C
+
+Babel/GameCube/src/bKernel/gcKernel.cpp:
+	.text       start:0x802B1CA0 end:0x802B24F8
+	.rodata     start:0x803A4914 end:0x803A4958

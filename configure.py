@@ -29,7 +29,7 @@ from tools.project import (
 # Game versions
 DEFAULT_VERSION = 0
 VERSIONS = [
-    "GAMEID",  # 0
+    "GP8EAF",  # 0
 ]
 
 parser = argparse.ArgumentParser()
@@ -156,14 +156,15 @@ if not config.non_matching:
     config.asm_dir = None
 
 # Tool versions
-config.binutils_tag = "2.42-2"
-config.compilers_tag = "20251118"
+config.binutils_tag = "2.42-1"
+config.compilers_tag = "20251015"
 config.dtk_tag = "v1.8.3"
-config.objdiff_tag = "v3.6.1"
+config.objdiff_tag = "v3.7.0"
 config.sjiswrap_tag = "v1.2.2"
-config.wibo_tag = "1.0.3"
+config.wibo_tag = "1.1.0"
 
 # Project
+ldscript_path = Path("config") / config.version / "ldscript.ld"
 config.config_path = Path("config") / config.version / "config.yml"
 config.check_sha_path = Path("config") / config.version / "build.sha1"
 config.asflags = [
@@ -173,15 +174,13 @@ config.asflags = [
     f"-I build/{config.version}/include",
     f"--defsym BUILD_VERSION={version_num}",
 ]
+
 config.ldflags = [
-    "-fp hardware",
-    "-nodefaults",
+    "-strip-unused-data",
+    "-report-unused",
+    "-T",
+    str(ldscript_path),
 ]
-if args.debug:
-    config.ldflags.append("-g")  # Or -gdwarf-2 for Wii linkers
-if args.map:
-    config.ldflags.append("-mapunused")
-    # config.ldflags.append("-listclosure") # For Wii linkers
 
 # Use for any additional files that should cause a re-configure when modified
 config.reconfig_deps = []
@@ -190,9 +189,9 @@ config.reconfig_deps = []
 # Can be overridden in libraries or objects
 config.scratch_preset_id = None
 
-# Base flags, common to most GC/Wii games.
-# Generally leave untouched, with overrides added below.
-cflags_base = [
+dolphinsdk_root = "src/dolphin"
+
+cflags_base_mwcc = [
     "-nodefaults",
     "-proc gekko",
     "-align powerpc",
@@ -215,59 +214,66 @@ cflags_base = [
     f"-DVERSION_{config.version}",
 ]
 
+cflags_base_prodg = [
+    "-O2",
+    "-gdwarf+",
+    "-DGEKKO",
+    f"-I include",
+    f"-I {dolphinsdk_root}/include",
+    f"-I {dolphinsdk_root}/include/libc"
+]
+
 # Debug flags
 if args.debug:
     # Or -sym dwarf-2 for Wii compilers
-    cflags_base.extend(["-sym on", "-DDEBUG=1"])
+    cflags_base_prodg.append("-DDEBUG=1")
 else:
-    cflags_base.append("-DNDEBUG=1")
+    cflags_base_prodg.append("-DNDEBUG=1")
 
 # Warning flags
-if args.warn == "all":
-    cflags_base.append("-W all")
-elif args.warn == "off":
-    cflags_base.append("-W off")
-elif args.warn == "error":
-    cflags_base.append("-W error")
+#if args.warn == "all":
+#    cflags_base.append("-W all")
+#elif args.warn == "off":
+#    cflags_base.append("-W off")
+#elif args.warn == "error":
+#    cflags_base.append("-W error")
 
-# Metrowerks library flags
-cflags_runtime = [
-    *cflags_base,
-    "-use_lmw_stmw on",
-    "-str reuse,pool,readonly",
-    "-gccinc",
-    "-common off",
-    "-inline auto",
+cflags_runtime = [*cflags_base_mwcc]
+
+cflags_dolphin = [
+    *cflags_base_mwcc,
+    f"-i {dolphinsdk_root}/include",
+    f"-i {dolphinsdk_root}/include/libc",
+    "-char unsigned",
+    "-warn pragmas",
+    "-requireprotos",
+    "-DSDK_REVISION=2",
+    f"-ir {dolphinsdk_root}/src"
 ]
 
-# REL flags
-cflags_rel = [
-    *cflags_base,
-    "-sdata 0",
-    "-sdata2 0",
+cflags_babel = [
+    *cflags_base_prodg
 ]
 
-config.linker_version = "GC/1.3.2"
+#cflags_runtime = [
+#    *cflags_base,
+#    "-use_lmw_stmw on",
+#    "-str reuse,pool,readonly",
+#    "-gccinc",
+#    "-common off",
+#    "-inline auto",
+#]
+
+config.linker_version = "ProDG/3.9.3"
 
 
 # Helper function for Dolphin libraries
 def DolphinLib(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
     return {
         "lib": lib_name,
-        "mw_version": "GC/1.2.5n",
-        "cflags": cflags_base,
+        "toolchain_version": "GC/1.2.5n",
+        "cflags": cflags_dolphin,
         "progress_category": "sdk",
-        "objects": objects,
-    }
-
-
-# Helper function for REL script objects
-def Rel(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
-    return {
-        "lib": lib_name,
-        "mw_version": "GC/1.3.2",
-        "cflags": cflags_rel,
-        "progress_category": "game",
         "objects": objects,
     }
 
@@ -285,15 +291,37 @@ def MatchingFor(*versions):
 config.warn_missing_config = True
 config.warn_missing_source = False
 config.libs = [
-    {
-        "lib": "Runtime.PPCEABI.H",
-        "mw_version": config.linker_version,
-        "cflags": cflags_runtime,
-        "progress_category": "sdk",  # str | List[str]
-        "objects": [
-            Object(NonMatching, "Runtime.PPCEABI.H/global_destructor_chain.c"),
-            Object(NonMatching, "Runtime.PPCEABI.H/__init_cpp_exceptions.cpp"),
+    DolphinLib(
+        "base",
+        [
+            Object(
+                Matching,
+                "dolphin/src/base/PPCArch.c",
+            ),
         ],
+    ),
+    DolphinLib(
+        "os",
+        [
+            Object(NonMatching, "dolphin/src/os/__start.c"),
+            Object(Matching, "dolphin/src/os/__ppc_eabi_init.c"),
+            Object(NonMatching, "dolphin/src/os/OSError.c"),
+        ],
+    ),
+    {
+        "lib": "Babel",
+        "cflags": cflags_babel,
+        "progress_category": "game",
+        "objects": [
+            Object(
+                NonMatching,
+                "Babel/GameCube/src/bKernel/gcKernel.cpp",
+            ),
+            Object(
+                NonMatching,
+                "Babel/Common/src/bKernel/crc32.cpp",
+            ),
+        ]
     },
 ]
 
