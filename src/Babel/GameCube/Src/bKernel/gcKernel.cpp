@@ -1,9 +1,10 @@
 #include <dolphin/os.h>
+#include <dolphin/dvd.h>
 #include <bKernel/crc32.h>
 
 static inline void bPopulateCRCTable()
 {
-    const u32 polynomial = 0x4c11db7;
+    const u32 polynomial = 0x4C11DB7;
 
     for (s32 i = 0; i < 256; i++) {
         s32 c = i << 24;
@@ -14,12 +15,18 @@ static inline void bPopulateCRCTable()
                 c <<= 1;
             }
         }
-        bCRCTable[i] = c;
+        bCRCtable[i] = c;
     }
 }
 
 static const char s_b_BlitzSDK_Babel_GameCube_Src_bKernel_gcKernel_cpp[] = "b:/BlitzSDK/Babel/GameCube/Src/bKernel/gcKernel.cpp";
 static const char s_End_of_Program[] = "End of program";
+
+void bInitKernel()
+{
+    OSInit();
+    DVDInit();
+}
 
 void bRun(void (*arg0)(void*), void* arg1)
 {

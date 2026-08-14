@@ -1,0 +1,9 @@
+void bShutdownHeap()
+{
+    
+}
+
+void bkHeapReset()
+{
+    
+}

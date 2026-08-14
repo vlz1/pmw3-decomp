@@ -2,23 +2,7 @@
 
 #include <dolphin/types.h>
 
-extern u32 bCRCTable[256];
+extern u32 bCRCtable[256];
 
-/*
-static inline void bPopulateCRCTable()
-{
-    u32 polynomial = 0x4c11db7;
-    
-    for (u32 i = 0; i < 256; i++) {
-        u32 c = i;
-        for (size_t j = 0; j < 8; j++) {
-            if (c & 1) {
-                c = polynomial ^ (c >> 1);
-            } else {
-                c >>= 1;
-            }
-        }
-        bCRCTable[i] = c;
-    }
-}
-*/
+u32 bkCRC32(const u8* data, int count, unsigned int crc);
+u32 bkStringCRC(const char* str, unsigned int crc);

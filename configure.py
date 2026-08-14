@@ -306,6 +306,7 @@ config.libs = [
             Object(NonMatching, "dolphin/src/os/__start.c"),
             Object(Matching, "dolphin/src/os/__ppc_eabi_init.c"),
             Object(NonMatching, "dolphin/src/os/OSError.c"),
+            Object(NonMatching, "dolphin/src/os/OSAlloc.c"),
         ],
     ),
     {
@@ -313,14 +314,9 @@ config.libs = [
         "cflags": cflags_babel,
         "progress_category": "game",
         "objects": [
-            Object(
-                NonMatching,
-                "Babel/GameCube/src/bKernel/gcKernel.cpp",
-            ),
-            Object(
-                NonMatching,
-                "Babel/Common/src/bKernel/crc32.cpp",
-            ),
+            Object(NonMatching, "Babel/GameCube/src/bKernel/gcKernel.cpp"),
+            Object(NonMatching, "Babel/Common/src/bKernel/crc32.cpp"),
+            Object(NonMatching, "Babel/Common/src/bKernel/heap.cpp"),
         ]
     },
 ]
