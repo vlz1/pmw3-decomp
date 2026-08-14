@@ -26,6 +26,9 @@ void bInitKernel()
 {
     OSInit();
     DVDInit();
+
+    DVDDiskID* diskID = DVDGetCurrentDiskID();
+    
 }
 
 void bRun(void (*arg0)(void*), void* arg1)
