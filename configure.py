@@ -189,7 +189,7 @@ config.reconfig_deps = []
 # Can be overridden in libraries or objects
 config.scratch_preset_id = None
 
-dolphinsdk_root = "src/dolphin"
+dolphinsdk_root = "src/Dolphin"
 
 cflags_base_mwcc = [
     "-nodefaults",
@@ -296,27 +296,26 @@ config.libs = [
         [
             Object(
                 Matching,
-                "dolphin/src/base/PPCArch.c",
+                "Dolphin/src/base/PPCArch.c",
             ),
         ],
     ),
     DolphinLib(
         "os",
         [
-            Object(NonMatching, "dolphin/src/os/__start.c"),
-            Object(Matching, "dolphin/src/os/__ppc_eabi_init.c"),
-            Object(NonMatching, "dolphin/src/os/OSError.c"),
-            Object(NonMatching, "dolphin/src/os/OSAlloc.c"),
+            Object(NonMatching, "Dolphin/src/os/__start.c"),
+            Object(Matching, "Dolphin/src/os/__ppc_eabi_init.c"),
+            Object(NonMatching, "Dolphin/src/os/OSError.c"),
+            Object(NonMatching, "Dolphin/src/os/OSAlloc.c"),
         ],
     ),
     {
-        "lib": "Babel",
+        "lib": "Units",
         "cflags": cflags_babel,
         "progress_category": "game",
         "objects": [
-            Object(NonMatching, "Babel/GameCube/src/bKernel/gcKernel.cpp"),
-            Object(NonMatching, "Babel/Common/src/bKernel/crc32.cpp"),
-            Object(NonMatching, "Babel/Common/src/bKernel/heap.cpp"),
+            Object(NonMatching, "Units/heap.cpp"),
+            Object(NonMatching, "Units/bKernelSourceFiles.cpp"),
         ]
     },
 ]
