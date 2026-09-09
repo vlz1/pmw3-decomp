@@ -4,7 +4,10 @@
 #include <bKernel/debug.h>
 #include <bKernel/mutex.h>
 
+unsigned int bBkInitFlags;
+int bInsideEventCallback;
 DVDDiskID* diskID;
+
 OSMutex eventMutex;
 OSMutex filenameTableMutex;
 

@@ -1,2 +1,2 @@
 CompileFlags:
-  Add: [ -Wno-writable-strings ]
+  Add: [ -Wno-writable-strings, -Wno-implicit-exception-spec-mismatch ]
