@@ -312,10 +312,19 @@ config.libs = [
     {
         "lib": "Units",
         "cflags": cflags_babel,
-        "progress_category": "game",
+        "progress_category": "babel",
         "objects": [
+            Object(NonMatching, "Units/gamesave.cpp"),
+            Object(NonMatching, "Units/savemenu.cpp"),
+            Object(NonMatching, "Units/gcSave.cpp"),
             Object(NonMatching, "Units/heap.cpp"),
             Object(NonMatching, "Units/bKernelSourceFiles.cpp"),
+            Object(NonMatching, "Units/bActorSourceFiles.cpp"),
+            Object(NonMatching, "Units/bCollisionSourceFiles.cpp"),
+            Object(NonMatching, "Units/bDisplaySourceFiles.cpp"),
+            Object(NonMatching, "Units/bInputSourceFiles.cpp"),
+            Object(NonMatching, "Units/bMathsSourceFiles.cpp"),
+            Object(NonMatching, "Units/bSoundSourceFiles.cpp"),
         ]
     },
 ]
@@ -342,8 +351,10 @@ def link_order_callback(module_id: int, objects: List[str]) -> List[str]:
 # Optional extra categories for progress tracking
 # Adjust as desired for your project
 config.progress_categories = [
-    ProgressCategory("game", "Game Code"),
     ProgressCategory("sdk", "SDK Code"),
+    ProgressCategory("babel", "Babel (Low-level Engine)"),
+    ProgressCategory("flare", "Flare (High-level Engine)"),
+    ProgressCategory("game", "Game Code"),
 ]
 config.progress_each_module = args.verbose
 # Optional extra arguments to `objdiff-cli report generate`

@@ -25,9 +25,33 @@ Dolphin/src/os/__ppc_eabi_init.c:
 	.init       start:0x80003270 end:0x80003294
 	.text       start:0x801E8D24 end:0x801E8DD8
 
+Units/bActorSourceFiles.cpp:
+	.text       start:0x801F6D78 end:0x8020C6EC
+
+Units/bCollisionSourceFiles.cpp:
+	.text       start:0x8020C6EC end:0x80285C04
+
+Units/bDisplaySourceFiles.cpp:
+	.text       start:0x80285C04 end:0x802A1ED0
+
+Units/bInputSourceFiles.cpp:
+	.text       start:0x802A1ED0 end:0x802A4B60
+
+Units/gcSave.cpp:
+	.text       start:0x802A4B60 end:0x802A73A8
+	.sbss       start:0x8048F690 end:0x8048F6D4
+
+Units/savemenu.cpp:
+	.text       start:0x802A73A8 end:0x802A9878
+	.sdata      start:0x8048EDA8 end:0x8048EDD8
+
+Units/gamesave.cpp:
+	.text       start:0x802A9878 end:0x802A9E5C
+	.sdata      start:0x8048EDD8 end:0x8048EDE0
+
 Units/bKernelSourceFiles.cpp:
-	.text       start:0x802ADB44 end:0x802B24F8
-	.rodata     start:0x803A4914 end:0x803A4994
+	.text       start:0x802A9E5C end:0x802B24F8
+	.rodata     start:0x803A3D08 end:0x803A4A4C
 	.bss        start:0x8044051C end:0x80440A4C
 	.sdata      start:0x8048EDE0 end:0x8048EEA8
 	.sbss       start:0x8048F730 end:0x8048F760
@@ -35,6 +59,12 @@ Units/bKernelSourceFiles.cpp:
 Units/heap.cpp:
 	.text       start:0x802B2524 end:0x802B3A3C
 	.data       start:0x803BBF50 end:0x803BC7C0
+
+Units/bMathsSourceFiles.cpp:
+	.text       start:0x802B3A3C end:0x802BABE8
+
+Units/bSoundSourceFiles.cpp:
+	.text       start:0x802BABE8 end:0x802C51B8
 
 Dolphin/src/os/OSAlloc.c:
 	.text       start:0x80333EE4 end:0x80334208

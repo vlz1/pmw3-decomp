@@ -217,3 +217,68 @@ void* bkHeapAlloc(unsigned int size, char* file, int line, unsigned short flags)
 {
     return 0;
 }
+
+int bkHeapGetBlockSize(void* ptr)
+{
+    return 0;
+}
+
+int bkHeapFreeSpace(int* largestFreeBlock)
+{
+    return 0;
+}
+
+char* bGetCurrentGroup()
+{
+    return (char*)bHeap.groupStack.group[bHeap.groupStack.currentLevel];
+}
+
+int bkHeapGroupPush(const char* const group)
+{
+    if (bHeap.groupStack.currentLevel == 0x1f)
+        return 0;
+    bHeap.groupStack.group[++bHeap.groupStack.currentLevel] = (u8*)group;
+    return 1;
+}
+
+int bkHeapGroupPop()
+{
+    if (bHeap.groupStack.currentLevel == 0)
+        return 0;
+    --bHeap.groupStack.currentLevel;
+    return 1;
+}
+
+void bkHeapSetLargeBlockThreshold(unsigned int value)
+{
+
+}
+
+unsigned int bkHeapGetLargeBlockThreshold()
+{
+    return 0;
+}
+
+void bkFreeAligned(void* ptr)
+{
+
+}
+
+int bkHeapEnablePooling(int enable)
+{
+    return 0;
+}
+
+void bkHeapActivatePool(struct _TBHeapPool* pool)
+{
+
+}
+
+void bkHeapDeactivatePool(struct _TBHeapPool* pool, int finalise) {
+    unsigned char* newPtr;
+}
+
+void bkHeapFreePool(struct _TBHeapPool* pool)
+{
+
+}
