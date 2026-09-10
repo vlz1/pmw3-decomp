@@ -208,7 +208,6 @@ cflags_base_mwcc = [
     "-fp_contract on",
     "-str reuse",
     "-multibyte",  # For Wii compilers, replace with `-enc SJIS`
-    "-i include",
     f"-i build/{config.version}/include",
     f"-DBUILD_VERSION={version_num}",
     f"-DVERSION_{config.version}",
@@ -218,7 +217,6 @@ cflags_base_prodg = [
     "-O2",
     "-gdwarf+",
     "-DGEKKO",
-    f"-I include",
     f"-I {dolphinsdk_root}/include",
     f"-I {dolphinsdk_root}/include/libc"
 ]
@@ -252,7 +250,14 @@ cflags_dolphin = [
 ]
 
 cflags_babel = [
-    *cflags_base_prodg
+    *cflags_base_prodg,
+    "-I src/Babel/Common/Include"
+]
+
+cflags_flare = [
+    *cflags_base_prodg,
+    "-I src/Babel/Common/Include",
+    "-I src/Flare/FlareEngine/Common/Include"
 ]
 
 #cflags_runtime = [
@@ -327,17 +332,18 @@ config.libs = [
     },
     {
         "lib": "Flare",
-        "cflags": cflags_babel,
+        "cflags": cflags_flare,
         "progress_category": "flare",
         "objects": [
             Object(NonMatching, "Units/core.cpp"),
             Object(NonMatching, "Units/feCoreSourceFiles.cpp"),
+            Object(NonMatching, "Units/CFSystemGamecube.cpp"),
             Object(NonMatching, "Units/frRuntimeSourceFiles.cpp"),
         ]
     },
     {
         "lib": "PMA",
-        "cflags": cflags_babel,
+        "cflags": cflags_flare,
         "progress_category": "game",
         "objects": [
             Object(NonMatching, "Units/PMASourceFiles.cpp"),

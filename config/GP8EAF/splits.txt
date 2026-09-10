@@ -27,60 +27,83 @@ dolphin/src/os/__start.c:
 	.init       start:0x80003100 end:0x80003270
 
 dolphin/src/os/__ppc_eabi_init.c:
-	.init       start:0x80003270 end:0x80003294
+	.init       start:0x80003270 end:0x800032A0
 	.text       start:0x801E8D24 end:0x801E8DD8
 
 Units/bActorSourceFiles.cpp:
 	.text       start:0x801F6D78 end:0x8020C6EC
+	.rodata     start:0x803995B0 end:0x80399CE8
 
 Units/bCollisionSourceFiles.cpp:
 	.text       start:0x8020C6EC end:0x80285C04
+	.rodata     start:0x80399CE8 end:0x8039F180
 
 Units/bDisplaySourceFiles.cpp:
 	.text       start:0x80285C04 end:0x802A1ED0
+	.rodata     start:0x8039F180 end:0x803A31F0
+	.bss        start:0x80430980 end:0x80435BA0
+	.sbss       start:0x8048F618 end:0x8048F65C
 
 Units/bInputSourceFiles.cpp:
 	.text       start:0x802A1ED0 end:0x802A4B60
+	.rodata     start:0x803A31F0 end:0x803A33B8
+	.sbss       start:0x8048F688 end:0x8048F690
 
 Units/gcSave.cpp:
 	.text       start:0x802A4B60 end:0x802A73A8
+	.rodata     start:0x803A33B8 end:0x803A3870
+	.bss        start:0x8043DF50 end:0x8043E1C8
 	.sbss       start:0x8048F690 end:0x8048F6D4
 
 Units/savemenu.cpp:
 	.text       start:0x802A73A8 end:0x802A9878
+	.rodata     start:0x803A3870 end:0x803A3CD0
+	.bss        start:0x8043E1C8 end:0x8043ECFC
 	.sdata      start:0x8048EDA8 end:0x8048EDD8
 
 Units/gamesave.cpp:
 	.text       start:0x802A9878 end:0x802A9E5C
+	.rodata     start:0x803A3CD0 end:0x803A3D08
+	.bss        start:0x80440288 end:0x80440488
 	.sdata      start:0x8048EDD8 end:0x8048EDE0
 
 Units/bKernelSourceFiles.cpp:
 	.text       start:0x802A9E5C end:0x802B24F8
-	.rodata     start:0x803A3D08 end:0x803A4A4C
-	.bss        start:0x8044051C end:0x80440A4C
+	.rodata     start:0x803A3D08 end:0x803A4B18
+	.bss        start:0x804404C8 end:0x80440A4C
 	.sdata      start:0x8048EDE0 end:0x8048EEA8
 	.sbss       start:0x8048F730 end:0x8048F760
 
 Units/heap.cpp:
 	.text       start:0x802B2524 end:0x802B3A3C
+	.rodata     start:0x803A4B18 end:0x803A4DE8
 	.data       start:0x803BBF50 end:0x803BC7C0
 
 Units/bMathsSourceFiles.cpp:
 	.text       start:0x802B3A3C end:0x802BABE8
+	.rodata     start:0x803A4DE8 end:0x803A5350
 
 Units/bSoundSourceFiles.cpp:
 	.text       start:0x802BABE8 end:0x802C51B8
+	.rodata     start:0x803A5350 end:0x803A5BA8
 
 Units/core.cpp:
 	.text       start:0x802C51B8 end:0x802C6624
+	.rodata     start:0x803A5BA8 end:0x803A5E60
 
 Units/feCoreSourceFiles.cpp:
 	.text       start:0x802C6624 end:0x802E79E4
 	.ctors      start:0x80370150 end:0x80370154
 	.dtors      start:0x80370168 end:0x8037016C
+	.rodata     start:0x803A5E60 end:0x803A6A80
+
+Units/CFSystemGamecube.cpp:
+	.text       start:0x802E79E4 end:0x802E7B9C
+	.rodata     start:0x803A6A80 end:0x803A6B30
 
 Units/frRuntimeSourceFiles.cpp:
-	.text       start:0x802E79E4 end:0x803326A8
+	.text       start:0x802E7B9C end:0x803326A8
+	.rodata     start:0x803A6B30 end:0x803A7B70
 
 dolphin/src/os/OSAlloc.c:
 	.text       start:0x80333EE4 end:0x80334208
