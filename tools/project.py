@@ -942,14 +942,12 @@ def generate_build_ninja(
                     elf_ldflags += f" -Map {serialize_path(elf_map)}"
                 else:
                     elf_map = None
+                link_implicit = [self.ldscript, *ld_implicit]
                 n.build(
                     outputs=elf_path,
                     rule="link",
                     inputs=self.inputs,
-                    implicit=[
-                        self.ldscript,
-                        *mwld_implicit,
-                    ],
+                    implicit=link_implicit,
                     implicit_outputs=elf_map,
                     variables={"ldflags": elf_ldflags},
                     order_only="post-compile",
@@ -972,20 +970,22 @@ def generate_build_ninja(
                 else:
                     preplf_map = None
                     plf_map = None
+                
                 n.build(
                     outputs=preplf_path,
                     rule="link",
                     inputs=self.inputs,
-                    implicit=mwld_implicit,
+                    implicit=ld_implicit,
                     implicit_outputs=preplf_map,
                     variables={"ldflags": preplf_ldflags},
                     order_only="post-compile",
                 )
+                link_implicit = [*ld_implicit, preplf_path, self.ldscript]
                 n.build(
                     outputs=plf_path,
                     rule="link",
                     inputs=self.inputs,
-                    implicit=[self.ldscript, preplf_path, *mwld_implicit],
+                    implicit=link_implicit,
                     implicit_outputs=plf_map,
                     variables={"ldflags": plf_ldflags},
                     order_only="post-compile",
