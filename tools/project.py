@@ -736,12 +736,14 @@ def generate_build_ninja(
         mwcc_pch_sjis_cmd += f" && $python {transform_dep} $basefile.d $basefile.d"
         mwcc_extab_cmd += f" && $python {transform_dep} $basefile.d $basefile.d"
         mwcc_sjis_extab_cmd += f" && $python {transform_dep} $basefile.d $basefile.d"
+        ngccc_cmd += f" && $python {transform_dep} $basefile.d $basefile.d"
         mwcc_implicit.append(transform_dep)
         mwcc_sjis_implicit.append(transform_dep)
         mwcc_pch_implicit.append(transform_dep)
         mwcc_pch_sjis_implicit.append(transform_dep)
         mwcc_extab_implicit.append(transform_dep)
         mwcc_sjis_extab_implicit.append(transform_dep)
+        ngccc_implicit.append(transform_dep)
 
     n.comment("Link ELF file")
     n.rule(
