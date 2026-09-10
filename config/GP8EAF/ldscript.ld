@@ -1,4 +1,6 @@
 ENTRY(__start)
+PROVIDE(_ctors = 0x803B65B8);
+PROVIDE(_dtors = 0x80370160);
 SECTIONS
 {
     .init 0x80003100 :
@@ -104,4 +106,16 @@ SECTIONS
         *(.sbss2.*)
         __SBSS2_END__ = .;
     }
+
+    . = 0x80490AE0;
+    _stack_end = .;
+    . += 0x10000;
+    _stack_addr = .;
+    . += 16;
+
+    . = ALIGN(32);
+    __ArenaLo = .;
+
+    . = 0x81780000;
+	__ArenaHi = .;
 }

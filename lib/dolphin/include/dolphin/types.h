@@ -22,9 +22,11 @@ typedef int BOOL;
 
 #if defined(__MWERKS__)
 #define AT_ADDRESS(addr) : (addr)
+#define WEAK_SYMBOL __declspec(weak)
 #elif defined(__GNUC__)
 //#define AT_ADDRESS(addr) __attribute__((address((addr))))
 #define AT_ADDRESS(addr)  // was removed in GCC. define in linker script instead.
+#define WEAK_SYMBOL __attribute__((weak))
 #else
 #error unknown compiler
 #endif

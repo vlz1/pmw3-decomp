@@ -1,6 +1,5 @@
 #include <dolphin/exi.h>
 #include <dolphin/os.h>
-#include <macros.h>
 
 #include "__os.h"
 
@@ -11,8 +10,8 @@ static int YearDays[MONTH_MAX] = {0,   31,  59,  90,  120, 151,
 static int LeapYearDays[MONTH_MAX] = {0,   31,  60,  91,  121, 152,
                                       182, 213, 244, 274, 305, 335};
 
-asm long long OSGetTime(void) {
-    // clang-format off
+#ifdef __GEKKO__
+asm OSTime OSGetTime(void) {
 jump:
     nofralloc
 
@@ -25,34 +24,30 @@ jump:
     bne jump
 
     blr
-    // clang-format on
 }
 
-asm unsigned long OSGetTick(void){
-    // clang-format off
+asm OSTick OSGetTick(void){
     nofralloc
 
     mftb r3
     blr
-    // clang-format on
 }
 
-asm static void __SetTime(long long time) {
-    // clang-format off
+asm static void __SetTime(OSTime time) {
     nofralloc
     li r5, 0
     mttbl r5
     mttbu r3
     mttbl r4
     blr
-    // clang-format on
 }
+#endif
 
-void __OSSetTime(long long time) {
-    int enabled;
-    long long * timeAdjustAddr;
+void __OSSetTime(OSTime time) {
+    BOOL enabled;
+    OSTime * timeAdjustAddr;
 
-    timeAdjustAddr = (long long *)0x800030D8;
+    timeAdjustAddr = __OSSystemTime;
     enabled = OSDisableInterrupts();
 
     *timeAdjustAddr += OSGetTime() - time;
@@ -61,12 +56,12 @@ void __OSSetTime(long long time) {
     OSRestoreInterrupts(enabled);
 }
 
-long long __OSGetSystemTime() {
-    int enabled;
-    long long * timeAdjustAddr;
-    long long result;
+OSTime __OSGetSystemTime() {
+    BOOL enabled;
+    OSTime* timeAdjustAddr;
+    OSTime result;
 
-    timeAdjustAddr = (long long *)0x800030D8;
+    timeAdjustAddr = __OSSystemTime;
     enabled = OSDisableInterrupts();
 
     result = OSGetTime() + *timeAdjustAddr;
@@ -74,26 +69,37 @@ long long __OSGetSystemTime() {
     return result;
 }
 
-asm void __OSSetTick(register unsigned long newTicks) {
-    // clang-format off
+OSTime __OSTimeToSystemTime(OSTime time) {
+    BOOL enabled;
+    OSTime* timeAdjustAddr = __OSSystemTime;
+    OSTime result;
+
+    enabled = OSDisableInterrupts();
+    result = *timeAdjustAddr + time;
+    OSRestoreInterrupts(enabled);
+    return result;
+}
+
+#ifdef __GEKKO__
+asm void __OSSetTick(register OSTick newTicks) {
     nofralloc
     mttbl newTicks
     blr
-    // clang-format on
 }
+#endif
 
 static int IsLeapYear(int year) {
     return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 }
 
 static int GetYearDays(int year, int mon) {
-    int * md = (IsLeapYear(year)) ? LeapYearDays : YearDays;
+    int* md = (IsLeapYear(year)) ? LeapYearDays : YearDays;
 
     return md[mon];
 }
 
 static int GetLeapDays(int year) {
-    ASSERTLINE(260, 0 <= year);
+    ASSERTLINE(286, 0 <= year);
     
     if (year < 1) {
         return 0;
@@ -107,7 +113,7 @@ static void GetDates(int days, OSCalendarTime* td) {
     int month;
     int * md;
 
-    ASSERTLINE(285, 0 <= days);
+    ASSERTLINE(311, 0 <= days);
 
     td->wday = (days + 6) % WEEK_DAY_MAX;
 
@@ -128,34 +134,34 @@ static void GetDates(int days, OSCalendarTime* td) {
     td->mday = days - md[month] + 1;
 }
 
-void OSTicksToCalendarTime(long long ticks, OSCalendarTime* td) {
+void OSTicksToCalendarTime(OSTime ticks, OSCalendarTime* td) {
     int days;
     int secs;
-    long long d;
+    OSTime d;
 
     d = ticks % OS_SEC_TO_TICKS(1);    
     if (d < 0) {
         d += OS_SEC_TO_TICKS(1);
-        ASSERTLINE(330, 0 <= d);
+        ASSERTLINE(356, 0 <= d);
     }
 
     td->usec = OS_TICKS_TO_USEC(d) % USEC_MAX;
     td->msec = OS_TICKS_TO_MSEC(d) % MSEC_MAX;
 
-    ASSERTLINE(334, 0 <= td->usec);
-    ASSERTLINE(335, 0 <= td->msec);
+    ASSERTLINE(360, 0 <= td->usec);
+    ASSERTLINE(361, 0 <= td->msec);
 
     ticks -= d;
 
-    ASSERTLINE(338, ticks % OSSecondsToTicks(1) == 0);
-    ASSERTLINE(342, 0 <= OSTicksToSeconds(ticks) / 86400 + BIAS && OSTicksToSeconds(ticks) / 86400 + BIAS <= INT_MAX);
+    ASSERTLINE(364, ticks % OSSecondsToTicks(1) == 0);
+    ASSERTLINE(368, 0 <= OSTicksToSeconds(ticks) / 86400 + BIAS && OSTicksToSeconds(ticks) / 86400 + BIAS <= INT_MAX);
 
     days = (OS_TICKS_TO_SEC(ticks) / SECS_IN_DAY) + BIAS;    
     secs = OS_TICKS_TO_SEC(ticks) % SECS_IN_DAY;
     if (secs < 0) {
         days -= 1;
         secs += SECS_IN_DAY;
-        ASSERTLINE(349, 0 <= secs);
+        ASSERTLINE(375, 0 <= secs);
     }
 
     GetDates(days, td);
@@ -165,7 +171,7 @@ void OSTicksToCalendarTime(long long ticks, OSCalendarTime* td) {
 }
 
 OSTime OSCalendarTimeToTicks(OSCalendarTime* td) {
-    long long secs;
+    OSTime secs;
     int ov_mon;
     int mon;
     int year;
@@ -178,19 +184,17 @@ OSTime OSCalendarTimeToTicks(OSCalendarTime* td) {
         ov_mon--;
     }
 
-    ASSERTLINE(0x182, (ov_mon <= 0 && 0 <= td->year + ov_mon) || (0 < ov_mon && td->year <= INT_MAX - ov_mon));
+    ASSERTLINE(412, (ov_mon <= 0 && 0 <= td->year + ov_mon) || (0 < ov_mon && td->year <= INT_MAX - ov_mon));
     
     year = td->year + ov_mon;
 
-    // clang-format off
-    secs = (s64)SECS_IN_YEAR * year +
-              (s64)SECS_IN_DAY * (GetLeapDays(year) + GetYearDays(year, mon) + td->mday - 1) +
-              (s64)SECS_IN_HOUR * td->hour +
-              (s64)SECS_IN_MIN * td->min +
-              td->sec -
-              (s64)0xEB1E1BF80ULL;
-    // clang-format on
+    secs = (OSTime)SECS_IN_YEAR * year +
+           (OSTime)SECS_IN_DAY * (GetLeapDays(year) + GetYearDays(year, mon) + td->mday - 1) +
+           (OSTime)SECS_IN_HOUR * td->hour +
+           (OSTime)SECS_IN_MIN * td->min +
+           td->sec -
+           (OSTime)0xEB1E1BF80ULL;
 
-    return OS_SEC_TO_TICKS(secs) + OS_MSEC_TO_TICKS((s64)td->msec) +
-           OS_USEC_TO_TICKS((s64)td->usec);
+    return OS_SEC_TO_TICKS(secs) + OS_MSEC_TO_TICKS((OSTime)td->msec) +
+           OS_USEC_TO_TICKS((OSTime)td->usec);
 }

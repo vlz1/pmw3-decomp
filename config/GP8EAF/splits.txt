@@ -15,16 +15,37 @@ Units/PMASourceFiles.cpp:
 	.ctors      start:0x80370144 end:0x8037014C
 	.dtors      start:0x80370164 end:0x80370168
 
+libsn/src/__start.s:
+	.init       start:0x80003100 end:0x80003270
+	.data       start:0x803B6490 end:0x803B64B0
+
+libsn/src/debug.c:
+	.text       start:0x801D5500 end:0x801D69DC
+	.data       start:0x803B64C0 end:0x803B65B8
+	.bss        start:0x80411BC0 end:0x8041A2C0
+
+libsn/src/serial_out.c:
+	.text       start:0x801D6B34 end:0x801D6C70
+
+libsn/src/fileserver.c:
+	.text       start:0x801D6C70 end:0x801D6EC0
+	.data       start:0x803B65C0 end:0x803B66B0
+
 dolphin/src/base/PPCArch.c:
 	.text       start:0x801E291C end:0x801E2A54
+
+dolphin/src/os/OS.c:
+	.text       start:0x801E2A54 end:0x801E3540
+	.data       start:0x803B6D78 end:0x803B6F70
+	.bss        start:0x8041A820 end:0x8041A870
+	.sdata      start:0x8048E978 end:0x8048E988
+	.sbss       start:0x8048F290 end:0x8048F2D0
 
 dolphin/src/os/OSError.c:
 	.text       start:0x801E4F60 end:0x801E560C
 	.data       start:0x803B75F0 end:0x803B7910
-	.bss        start:0x8041A870 end:0x8041A8AC
-
-dolphin/src/os/__start.c:
-	.init       start:0x80003100 end:0x80003270
+	.bss        start:0x8041A870 end:0x8041A8C0
+	.sdata      start:0x8048E990 end:0x8048E998
 
 dolphin/src/os/__ppc_eabi_init.c:
 	.init       start:0x80003270 end:0x800032A0
@@ -107,5 +128,6 @@ Units/frRuntimeSourceFiles.cpp:
 
 dolphin/src/os/OSAlloc.c:
 	.text       start:0x80333EE4 end:0x80334208
+	.data       start:0x803BDE98 end:0x803BE230
 	.sdata      start:0x8048F0A8 end:0x8048F0AC
 	.sbss       start:0x8048F7E8 end:0x8048F7F8

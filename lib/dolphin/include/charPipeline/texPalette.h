@@ -8,45 +8,45 @@ extern "C" {
 #endif
 
 typedef struct {
-    /* 0x00 */ u16 numEntries;
-    /* 0x02 */ u8 unpacked;
-    /* 0x03 */ u8 pad8;
-    /* 0x04 */ GXTlutFmt format;
-    /* 0x08 */ Ptr data;
+    u16 numEntries;
+    u8 unpacked;
+    u8 pad8;
+    GXTlutFmt format;
+    Ptr data;
 } CLUTHeader, *CLUTHeaderPtr;
 
 typedef struct {
-    /* 0x00 */ u16 height;
-    /* 0x02 */ u16 width;
-    /* 0x04 */ u32 format;
-    /* 0x08 */ Ptr data;
-    /* 0x0C */ GXTexWrapMode wrapS;
-    /* 0x10 */ GXTexWrapMode wrapT;
-    /* 0x14 */ GXTexFilter minFilter;
-    /* 0x18 */ GXTexFilter magFilter;
-    /* 0x1C */ f32 LODBias;
-    /* 0x20 */ u8 edgeLODEnable;
-    /* 0x21 */ u8 minLOD;
-    /* 0x22 */ u8 maxLOD;
-    /* 0x23 */ u8 unpacked;
+    u16 height;
+    u16 width;
+    u32 format;
+    Ptr data;
+    GXTexWrapMode wrapS; 
+    GXTexWrapMode wrapT;
+    GXTexFilter minFilter;
+    GXTexFilter magFilter;
+    f32 LODBias;
+    u8 edgeLODEnable;
+    u8 minLOD;
+    u8 maxLOD;
+    u8 unpacked;
 } TEXHeader, *TEXHeaderPtr;
 
 typedef struct {
-    /* 0x00 */ TEXHeaderPtr textureHeader;
-    /* 0x04 */ CLUTHeaderPtr CLUTHeader;
+    TEXHeaderPtr textureHeader;
+    CLUTHeaderPtr CLUTHeader;
 } TEXDescriptor, *TEXDescriptorPtr;
 
 typedef struct {
-    /* 0x00 */ u32 versionNumber;
-    /* 0x04 */ u32 numDescriptors;
-    /* 0x08 */ TEXDescriptorPtr descriptorArray;
+    u32 versionNumber;
+    u32 numDescriptors;
+    TEXDescriptorPtr descriptorArray;
 } TEXPalette, *TEXPalettePtr;
 
-void TEXGetPalette(TEXPalettePtr *pal, char *name);
+void TEXGetPalette(TEXPalettePtr* pal, char* name);
 TEXDescriptorPtr TEXGet(TEXPalettePtr pal, u32 id);
-void TEXReleasePalette(TEXPalettePtr *pal);
-void TEXGetGXTexObjFromPalette(TEXPalettePtr pal, GXTexObj *to, u32 id);
-void TEXGetGXTexObjFromPaletteCI(TEXPalettePtr pal, GXTexObj *to, GXTlutObj *tlo, GXTlut tluts, u32 id);
+void TEXReleasePalette(TEXPalettePtr* pal);
+void TEXGetGXTexObjFromPalette(TEXPalettePtr pal, GXTexObj* to, u32 id);
+void TEXGetGXTexObjFromPaletteCI(TEXPalettePtr pal, GXTexObj* to, GXTlutObj* tlo, GXTlut tluts, u32 id);
 
 #ifdef __cplusplus
 }

@@ -165,6 +165,7 @@ config.wibo_tag = "1.1.0"
 
 # Project
 ldscript_path = Path("config") / config.version / "ldscript.ld"
+keep_list_path = Path("config") / config.version / "keep.lst"
 config.config_path = Path("config") / config.version / "config.yml"
 config.check_sha_path = Path("config") / config.version / "build.sha1"
 config.asflags = [
@@ -177,6 +178,8 @@ config.asflags = [
 
 config.ldflags = [
     "-strip-unused-data",
+    "-keep",
+    str(keep_list_path),
     "-report-unused",
     "-T",
     str(ldscript_path),
@@ -207,6 +210,7 @@ cflags_base_mwcc = [
     "-RTTI off",
     "-fp_contract on",
     "-str reuse",
+    "-D__GEKKO__",
     "-multibyte",  # For Wii compilers, replace with `-enc SJIS`
     f"-i build/{config.version}/include",
     f"-DBUILD_VERSION={version_num}",
@@ -216,6 +220,13 @@ cflags_base_mwcc = [
 cflags_base_prodg = [
     "-O2",
     "-gdwarf+",
+    "-DGEKKO",
+    f"-I {dolphinsdk_root}/include",
+    f"-I {dolphinsdk_root}/include/libc"
+]
+
+cflags_libsn = [
+    "-O2",
     "-DGEKKO",
     f"-I {dolphinsdk_root}/include",
     f"-I {dolphinsdk_root}/include/libc"
@@ -246,6 +257,7 @@ cflags_dolphin = [
     "-warn pragmas",
     "-requireprotos",
     "-DSDK_REVISION=2",
+    "-DOS_VERSION=2003",
     f"-ir {dolphinsdk_root}/src"
 ]
 
@@ -306,12 +318,25 @@ config.libs = [
     DolphinLib(
         "os",
         [
-            Object(NonMatching, "dolphin/src/os/__start.c"),
             Object(Matching, "dolphin/src/os/__ppc_eabi_init.c"),
+            Object(Matching, "dolphin/src/os/OS.c"),
+            Object(NonMatching, "dolphin/src/os/OSCache.c"),
             Object(NonMatching, "dolphin/src/os/OSError.c"),
-            Object(NonMatching, "dolphin/src/os/OSAlloc.c"),
+            Object(Matching, "dolphin/src/os/OSAlloc.c"),
         ],
     ),
+    {
+        "lib": "libsn",
+        "cflags": cflags_libsn,
+        "progress_category": "sdk",
+        "objects": [
+            Object(Matching, "libsn/src/__start.s"),
+            Object(NonMatching, "libsn/src/debug.c"),
+            Object(NonMatching, "libsn/src/serial_out.c"),
+            Object(NonMatching, "libsn/src/fileserver.c"),
+        ],
+        "src_dir": "lib"
+    },
     {
         "lib": "Babel",
         "cflags": cflags_babel,

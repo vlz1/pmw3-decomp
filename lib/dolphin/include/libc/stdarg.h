@@ -26,6 +26,7 @@ void* __va_arg(va_list v_list, unsigned char type);
 #define va_end(ap) (void)0
 
 #else
+// TODO: Figure out why __builtin_va_list is breaking
 //typedef __builtin_va_list va_list;
 typedef void* va_list;
 #define va_start(v, l) __builtin_va_start(v, l)
