@@ -65,6 +65,9 @@ with open(args.symbol_dump, "rb") as f:
 with open(args.output, "wb") as f:
     for sym in symbols:
         sym_name = sym["name"]
+        if sym_name == "gcc2_compiled.":
+            continue
+
         sym_type = ""
         if sym["type"] == "OBJECT":
             sym_type = "object"

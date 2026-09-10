@@ -310,7 +310,7 @@ config.libs = [
         ],
     ),
     {
-        "lib": "Units",
+        "lib": "Babel",
         "cflags": cflags_babel,
         "progress_category": "babel",
         "objects": [
@@ -327,6 +327,24 @@ config.libs = [
             Object(NonMatching, "Units/bSoundSourceFiles.cpp"),
         ]
     },
+    {
+        "lib": "Flare",
+        "cflags": cflags_babel,
+        "progress_category": "flare",
+        "objects": [
+            Object(NonMatching, "Units/core.cpp"),
+            Object(NonMatching, "Units/feCoreSourceFiles.cpp"),
+            Object(NonMatching, "Units/frRuntimeSourceFiles.cpp"),
+        ]
+    },
+    {
+        "lib": "PMA",
+        "cflags": cflags_babel,
+        "progress_category": "game",
+        "objects": [
+            Object(NonMatching, "Units/PMASourceFiles.cpp"),
+        ]
+    }
 ]
 
 

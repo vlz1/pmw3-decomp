@@ -10,6 +10,11 @@ Sections:
 	.sbss       type:bss align:4
 	.sdata2     type:rodata align:32
 
+Units/PMASourceFiles.cpp:
+	.text       start:0x800032A0 end:0x801D5500
+	.ctors      start:0x80370144 end:0x8037014C
+	.dtors      start:0x80370164 end:0x80370168
+
 Dolphin/src/base/PPCArch.c:
 	.text       start:0x801E291C end:0x801E2A54
 
@@ -65,6 +70,17 @@ Units/bMathsSourceFiles.cpp:
 
 Units/bSoundSourceFiles.cpp:
 	.text       start:0x802BABE8 end:0x802C51B8
+
+Units/core.cpp:
+	.text       start:0x802C51B8 end:0x802C6624
+
+Units/feCoreSourceFiles.cpp:
+	.text       start:0x802C6624 end:0x802E79E4
+	.ctors      start:0x80370150 end:0x80370154
+	.dtors      start:0x80370168 end:0x8037016C
+
+Units/frRuntimeSourceFiles.cpp:
+	.text       start:0x802E79E4 end:0x803326A8
 
 Dolphin/src/os/OSAlloc.c:
 	.text       start:0x80333EE4 end:0x80334208
