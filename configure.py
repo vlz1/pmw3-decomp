@@ -189,7 +189,7 @@ config.reconfig_deps = []
 # Can be overridden in libraries or objects
 config.scratch_preset_id = None
 
-dolphinsdk_root = "src/Dolphin"
+dolphinsdk_root = "lib/dolphin"
 
 cflags_base_mwcc = [
     "-nodefaults",
@@ -275,6 +275,7 @@ def DolphinLib(lib_name: str, objects: List[Object]) -> Dict[str, Any]:
         "cflags": cflags_dolphin,
         "progress_category": "sdk",
         "objects": objects,
+        "src_dir": "lib"
     }
 
 
@@ -294,19 +295,16 @@ config.libs = [
     DolphinLib(
         "base",
         [
-            Object(
-                Matching,
-                "Dolphin/src/base/PPCArch.c",
-            ),
+            Object(Matching, "dolphin/src/base/PPCArch.c"),
         ],
     ),
     DolphinLib(
         "os",
         [
-            Object(NonMatching, "Dolphin/src/os/__start.c"),
-            Object(Matching, "Dolphin/src/os/__ppc_eabi_init.c"),
-            Object(NonMatching, "Dolphin/src/os/OSError.c"),
-            Object(NonMatching, "Dolphin/src/os/OSAlloc.c"),
+            Object(NonMatching, "dolphin/src/os/__start.c"),
+            Object(Matching, "dolphin/src/os/__ppc_eabi_init.c"),
+            Object(NonMatching, "dolphin/src/os/OSError.c"),
+            Object(NonMatching, "dolphin/src/os/OSAlloc.c"),
         ],
     ),
     {

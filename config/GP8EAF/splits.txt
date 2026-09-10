@@ -15,18 +15,18 @@ Units/PMASourceFiles.cpp:
 	.ctors      start:0x80370144 end:0x8037014C
 	.dtors      start:0x80370164 end:0x80370168
 
-Dolphin/src/base/PPCArch.c:
+dolphin/src/base/PPCArch.c:
 	.text       start:0x801E291C end:0x801E2A54
 
-Dolphin/src/os/OSError.c:
+dolphin/src/os/OSError.c:
 	.text       start:0x801E4F60 end:0x801E560C
 	.data       start:0x803B75F0 end:0x803B7910
 	.bss        start:0x8041A870 end:0x8041A8AC
 
-Dolphin/src/os/__start.c:
+dolphin/src/os/__start.c:
 	.init       start:0x80003100 end:0x80003270
 
-Dolphin/src/os/__ppc_eabi_init.c:
+dolphin/src/os/__ppc_eabi_init.c:
 	.init       start:0x80003270 end:0x80003294
 	.text       start:0x801E8D24 end:0x801E8DD8
 
@@ -82,7 +82,7 @@ Units/feCoreSourceFiles.cpp:
 Units/frRuntimeSourceFiles.cpp:
 	.text       start:0x802E79E4 end:0x803326A8
 
-Dolphin/src/os/OSAlloc.c:
+dolphin/src/os/OSAlloc.c:
 	.text       start:0x80333EE4 end:0x80334208
 	.sdata      start:0x8048F0A8 end:0x8048F0AC
 	.sbss       start:0x8048F7E8 end:0x8048F7F8
