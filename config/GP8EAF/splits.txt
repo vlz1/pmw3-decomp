@@ -14,6 +14,7 @@ Units/PMASourceFiles.cpp:
 	.text       start:0x800032A0 end:0x801D5500
 	.ctors      start:0x80370144 end:0x8037014C
 	.dtors      start:0x80370164 end:0x80370168
+	.rodata     start:0x80370248 end:0x8038DC08
 
 libsn/src/__start.s:
 	.init       start:0x80003100 end:0x80003270
@@ -224,7 +225,7 @@ Units/bKernelSourceFiles.cpp:
 Units/heap.cpp:
 	.text       start:0x802B2524 end:0x802B3A3C
 	.rodata     start:0x803A4B18 end:0x803A4DE8
-	.data       start:0x803BBF50 end:0x803BC7C0
+	.data       start:0x803BBF50 end:0x803BC7FC
 
 Units/bMathsSourceFiles.cpp:
 	.text       start:0x802B3A3C end:0x802BABE8

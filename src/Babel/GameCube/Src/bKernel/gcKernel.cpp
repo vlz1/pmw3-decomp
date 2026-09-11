@@ -4,6 +4,8 @@
 #include <bKernel/debug.h>
 #include <bKernel/mutex.h>
 
+extern void PCinit();
+
 unsigned int bBkInitFlags;
 int bInsideEventCallback;
 DVDDiskID* diskID;
@@ -12,11 +14,6 @@ OSMutex eventMutex;
 OSMutex filenameTableMutex;
 
 int bOSHeap = 0;
-
-void PCinit()
-{
-
-}
 
 static inline void bPopulateCRCTable()
 {
