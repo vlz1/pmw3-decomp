@@ -321,7 +321,9 @@ config.libs = [
             Object(Matching, "dolphin/src/os/__ppc_eabi_init.c"),
             Object(Matching, "dolphin/src/os/OS.c"),
             Object(Matching, "dolphin/src/os/OSError.c"),
+            Object(Matching, "dolphin/src/os/OSInterrupt.c"),
             Object(Matching, "dolphin/src/os/OSAlarm.c"),
+            Object(Matching, "dolphin/src/os/OSArena.c"),
             Object(Matching, "dolphin/src/os/OSAudioSystem.c"),
             Object(Matching, "dolphin/src/os/OSCache.c"),
             Object(Matching, "dolphin/src/os/OSContext.c"),
@@ -336,6 +338,8 @@ config.libs = [
             Object(Matching, "dolphin/src/os/OSMutex.c"),
             Object(NonMatching, "dolphin/src/os/OSReboot.c"),
             Object(Matching, "dolphin/src/os/OSAlloc.c"),
+            Object(NonMatching, "dolphin/src/os/OSFont.c"),
+            Object(NonMatching, "dolphin/src/os/OSMessage.c"),
         ],
     ),
     DolphinLib(
@@ -362,6 +366,32 @@ config.libs = [
         [
             Object(Matching, "dolphin/src/pad/Pad.c"),
             Object(NonMatching, "dolphin/src/pad/Padclamp.c"),
+        ]
+    ),
+    DolphinLib(
+        "gx",
+        [
+            Object(NonMatching, "dolphin/src/gx/GXInit.c"),
+            Object(NonMatching, "dolphin/src/gx/GXFifo.c"),
+            Object(NonMatching, "dolphin/src/gx/GXAttr.c"),
+            Object(NonMatching, "dolphin/src/gx/GXMisc.c"),
+            Object(NonMatching, "dolphin/src/gx/GXGeometry.c"),
+            Object(NonMatching, "dolphin/src/gx/GXFrameBuf.c"),
+            Object(NonMatching, "dolphin/src/gx/GXLight.c"),
+            Object(NonMatching, "dolphin/src/gx/GXTexture.c"),
+            Object(NonMatching, "dolphin/src/gx/GXBump.c"),
+            Object(NonMatching, "dolphin/src/gx/GXTev.c"),
+            Object(NonMatching, "dolphin/src/gx/GXPixel.c"),
+            Object(NonMatching, "dolphin/src/gx/GXDisplayList.c"),
+            Object(NonMatching, "dolphin/src/gx/GXTransform.c"),
+            Object(NonMatching, "dolphin/src/gx/GXPerf.c"),
+        ]
+    ),
+    DolphinLib(
+        "gd",
+        [
+            Object(NonMatching, "dolphin/src/gd/GDBase.c"),
+            Object(NonMatching, "dolphin/src/gd/GDTexture.c"),
         ]
     ),
     {

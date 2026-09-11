@@ -46,6 +46,11 @@ dolphin/src/os/OSAlarm.c:
 	.data       start:0x803B6F70 end:0x803B7168
 	.sbss       start:0x8048F2D0 end:0x8048F2D8
 
+dolphin/src/os/OSArena.c:
+	.text       start:0x801E3D18 end:0x801E3D38
+	.sdata      start:0x8048E988 end:0x8048E990
+	.sbss       start:0x8048F2D8 end:0x8048F2E0
+
 dolphin/src/os/OSAudioSystem.c:
 	.text       start:0x801E3D38 end:0x801E3FCC
 	.data       start:0x803B7168 end:0x803B71E8
@@ -63,6 +68,11 @@ dolphin/src/os/OSError.c:
 	.data       start:0x803B75F0 end:0x803B7910
 	.bss        start:0x8041A870 end:0x8041A8C0
 	.sdata      start:0x8048E990 end:0x8048E998
+
+dolphin/src/os/OSInterrupt.c:
+	.text       start:0x801E560C end:0x801E5E78
+	.data       start:0x803B7910 end:0x803B7940
+	.sbss       start:0x8048F2E0 end:0x8048F2F8
 
 dolphin/src/os/OSLink.c:
 	.text       start:0x801E5E78 end:0x801E5E90
@@ -248,6 +258,71 @@ dolphin/src/os/OSAlloc.c:
 	.sdata      start:0x8048F0A8 end:0x8048F0AC
 	.sbss       start:0x8048F7E8 end:0x8048F7F8
 
+dolphin/src/os/OSFont.c:
+	.text       start:0x80334208 end:0x80334F68
+	.data       start:0x803BE230 end:0x803BED40
+	.sdata      start:0x8048F0B8 end:0x8048F0C0
+	.sbss       start:0x8048F7F8 end:0x8048F808
+	.sdata2     start:0x80490768 end:0x80490770
+
+dolphin/src/os/OSMessage.c:
+	.text       start:0x80334F68 end:0x8033516C
+
 dolphin/src/pad/Padclamp.c:
 	.text       start:0x80335230 end:0x80335474
 	.rodata     start:0x803A7B88 end:0x803A7B98
+
+dolphin/src/gx/GXInit.c:
+	.text       start:0x80345E2C end:0x803471AC
+	.data       start:0x803C4520 end:0x803C4760
+	.bss        start:0x80483C60 end:0x80484290
+	.sdata      start:0x8048F110 end:0x8048F118
+	.sbss       start:0x8048F988 end:0x8048F9B0
+
+dolphin/src/gx/GXFifo.c:
+	.text       start:0x803471AC end:0x80347BD8
+	.sbss       start:0x8048F9B0 end:0x8048F9D0
+
+dolphin/src/gx/GXAttr.c:
+	.text       start:0x80347BD8 end:0x80348FE8
+	.data       start:0x803C4760 end:0x803C49D8
+	.sdata      start:0x8048F118 end:0x8048F128
+
+dolphin/src/gx/GXMisc.c:
+	.text       start:0x80348FE8 end:0x803496D0
+
+dolphin/src/gx/GXGeometry.c:
+	.text       start:0x803496D0 end:0x80349A0C
+
+dolphin/src/gx/GXFrameBuf.c:
+	.text       start:0x80349A0C end:0x8034A370
+
+dolphin/src/gx/GXLight.c:
+	.text       start:0x8034A370 end:0x8034A988
+
+dolphin/src/gx/GXTexture.c:
+	.text       start:0x8034A988 end:0x8034B9EC
+
+dolphin/src/gx/GXBump.c:
+	.text       start:0x8034B9EC end:0x8034BC60
+
+dolphin/src/gx/GXTev.c:
+	.text       start:0x8034BC60 end:0x8034C3C4
+
+dolphin/src/gx/GXPixel.c:
+	.text       start:0x8034C3C4 end:0x8034CA0C
+
+dolphin/src/gx/GXDisplayList.c:
+	.text       start:0x8034CA0C end:0x8034CC18
+
+dolphin/src/gx/GXTransform.c:
+	.text       start:0x8034CC18 end:0x8034D268
+
+dolphin/src/gx/GXPerf.c:
+	.text       start:0x8034D268 end:0x8034DD2C
+
+dolphin/src/gd/GDBase.c:
+	.text       start:0x8034DD2C end:0x8034DD74
+
+dolphin/src/gd/GDTexture.c:
+	.text       start:0x8034DD74 end:0x8034DE04
