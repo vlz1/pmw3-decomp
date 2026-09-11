@@ -257,7 +257,7 @@ cflags_dolphin = [
     "-warn pragmas",
     "-requireprotos",
     "-DSDK_REVISION=2",
-    "-DOS_VERSION=2003",
+    "-DSDK_YEAR=2003",
     f"-ir {dolphinsdk_root}/src"
 ]
 
@@ -349,6 +349,19 @@ config.libs = [
             Object(NonMatching, "dolphin/src/dvd/dvdFatal.c"),
             Object(NonMatching, "dolphin/src/dvd/fstload.c"),
             Object(Matching, "dolphin/src/dvd/dvdlow.c"),
+        ]
+    ),
+    DolphinLib(
+        "vi",
+        [
+            Object(NonMatching, "dolphin/src/vi/vi.c"),
+        ]
+    ),
+    DolphinLib(
+        "pad",
+        [
+            Object(Matching, "dolphin/src/pad/Pad.c"),
+            Object(NonMatching, "dolphin/src/pad/Padclamp.c"),
         ]
     ),
     {

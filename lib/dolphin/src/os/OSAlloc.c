@@ -450,7 +450,7 @@ void OSDestroyHeap(int heap) {
 #endif
     
     hd->size = -1;
-#if OS_VERSION != 2003
+#if SDK_YEAR != 2003
     hd->free = hd->allocated = 0;
 #endif
 

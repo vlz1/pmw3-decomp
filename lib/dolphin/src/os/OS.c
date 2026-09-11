@@ -30,7 +30,7 @@ extern u32 BOOT_REGION_END AT_ADDRESS(0x812FDFEC);
     #define DBUILD_TIME "09:15:32"
     #define RBUILD_TIME "09:28:09"
 #else
-    #if OS_VERSION == 2003
+    #if SDK_YEAR == 2003
         #define BUILD_DATE  "Jul 23 2003"
         #define DBUILD_TIME "03:55:13"
         #define RBUILD_TIME "11:27:16"

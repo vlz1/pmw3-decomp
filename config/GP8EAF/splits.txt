@@ -153,6 +153,20 @@ dolphin/src/dvd/dvdlow.c:
 	.sdata      start:0x8048EA70 end:0x8048EA78
 	.sbss       start:0x8048F410 end:0x8048F458
 
+dolphin/src/vi/vi.c:
+	.text       start:0x801F15F8 end:0x801F33CC
+	.data       start:0x803B9028 end:0x803B93F8
+	.bss        start:0x8041B7F8 end:0x8041B940
+	.sdata      start:0x8048EA78 end:0x8048EA88
+	.sbss       start:0x8048F458 end:0x8048F4B8
+
+dolphin/src/pad/Pad.c:
+	.text       start:0x801F33CC end:0x801F4D14
+	.data       start:0x803B93F8 end:0x803B9450
+	.bss        start:0x8041B940 end:0x8041B990
+	.sdata      start:0x8048EA88 end:0x8048EAA8
+	.sbss       start:0x8048F4B8 end:0x8048F4E8
+
 Units/bActorSourceFiles.cpp:
 	.text       start:0x801F6D78 end:0x8020C6EC
 	.rodata     start:0x803995B0 end:0x80399CE8
@@ -233,3 +247,7 @@ dolphin/src/os/OSAlloc.c:
 	.data       start:0x803BDE98 end:0x803BE230
 	.sdata      start:0x8048F0A8 end:0x8048F0AC
 	.sbss       start:0x8048F7E8 end:0x8048F7F8
+
+dolphin/src/pad/Padclamp.c:
+	.text       start:0x80335230 end:0x80335474
+	.rodata     start:0x803A7B88 end:0x803A7B98
