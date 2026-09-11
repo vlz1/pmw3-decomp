@@ -109,6 +109,50 @@ dolphin/src/os/OSReboot.c:
 	.text       start:0x801E91F4 end:0x801E9550
 	.sbss       start:0x8048F338 end:0x8048F340
 
+dolphin/src/dvd/dvdfs.c:
+	.text       start:0x801ECF54 end:0x801ED884
+	.data       start:0x803B84E8 end:0x803B88D8
+	.sdata      start:0x8048E9F8 end:0x8048EA00
+	.sbss       start:0x8048F380 end:0x8048F3A0
+
+dolphin/src/dvd/dvd.c:
+	.text       start:0x801ED884 end:0x801F0084
+	.data       start:0x803B88D8 end:0x803B8A58
+	.bss        start:0x8041B600 end:0x8041B698
+	.sdata      start:0x8048EA00 end:0x8048EA20
+	.sbss       start:0x8048F3A0 end:0x8048F3F8
+
+dolphin/src/dvd/dvdqueue.c:
+	.text       start:0x801F0084 end:0x801F027C
+	.data       start:0x803B8A58 end:0x803B8BC0
+	.bss        start:0x8041B698 end:0x8041B6B8
+	.sdata      start:0x8048EA20 end:0x8048EA58
+
+dolphin/src/dvd/dvderror.c:
+	.text       start:0x801F027C end:0x801F0414
+	.data       start:0x803B8BC0 end:0x803B8C08
+
+dolphin/src/dvd/dvdidutils.c:
+	.text       start:0x801F0414 end:0x801F050C
+
+dolphin/src/dvd/dvdFatal.c:
+	.text       start:0x801F050C end:0x801F053C
+	.data       start:0x803B8C08 end:0x803B8FB8
+	.sbss       start:0x8048F3F8 end:0x8048F400
+
+dolphin/src/dvd/fstload.c:
+	.text       start:0x801F053C end:0x801F077C
+	.data       start:0x803B8FB8 end:0x803B9028
+	.bss        start:0x8041B6B8 end:0x8041B728
+	.sdata      start:0x8048EA60 end:0x8048EA70
+	.sbss       start:0x8048F400 end:0x8048F410
+
+dolphin/src/dvd/dvdlow.c:
+	.text       start:0x801F077C end:0x801F15F8
+	.bss        start:0x8041B728 end:0x8041B7F8
+	.sdata      start:0x8048EA70 end:0x8048EA78
+	.sbss       start:0x8048F410 end:0x8048F458
+
 Units/bActorSourceFiles.cpp:
 	.text       start:0x801F6D78 end:0x8020C6EC
 	.rodata     start:0x803995B0 end:0x80399CE8

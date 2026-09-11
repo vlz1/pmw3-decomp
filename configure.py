@@ -338,6 +338,19 @@ config.libs = [
             Object(Matching, "dolphin/src/os/OSAlloc.c"),
         ],
     ),
+    DolphinLib(
+        "dvd",
+        [
+            Object(NonMatching, "dolphin/src/dvd/dvd.c"),
+            Object(NonMatching, "dolphin/src/dvd/dvdfs.c"),
+            Object(Matching, "dolphin/src/dvd/dvdqueue.c"),
+            Object(NonMatching, "dolphin/src/dvd/dvderror.c"),
+            Object(NonMatching, "dolphin/src/dvd/dvdidutils.c"),
+            Object(NonMatching, "dolphin/src/dvd/dvdFatal.c"),
+            Object(NonMatching, "dolphin/src/dvd/fstload.c"),
+            Object(Matching, "dolphin/src/dvd/dvdlow.c"),
+        ]
+    ),
     {
         "lib": "libsn",
         "cflags": cflags_libsn,
