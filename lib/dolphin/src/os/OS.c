@@ -87,11 +87,9 @@ void __OSDBINTEND(void);
 void __OSDBJUMPSTART(void);
 void __OSDBJUMPEND(void);
 
-#if OS_VERSION != 2003
 u32 __OSIsDebuggerPresent(void) {
     return *(u32*)OSPhysicalToCached(0x40);
 }
-#endif
 
 /* clang-format off */
 #ifdef __GEKKO__

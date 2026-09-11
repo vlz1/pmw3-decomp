@@ -41,15 +41,73 @@ dolphin/src/os/OS.c:
 	.sdata      start:0x8048E978 end:0x8048E988
 	.sbss       start:0x8048F290 end:0x8048F2D0
 
+dolphin/src/os/OSAlarm.c:
+	.text       start:0x801E3540 end:0x801E3D18
+	.data       start:0x803B6F70 end:0x803B7168
+	.sbss       start:0x8048F2D0 end:0x8048F2D8
+
+dolphin/src/os/OSAudioSystem.c:
+	.text       start:0x801E3D38 end:0x801E3FCC
+	.data       start:0x803B7168 end:0x803B71E8
+
+dolphin/src/os/OSCache.c:
+	.text       start:0x801E3FCC end:0x801E46E8
+	.data       start:0x803B71E8 end:0x803B7418
+
+dolphin/src/os/OSContext.c:
+	.text       start:0x801E46E8 end:0x801E4F60
+	.data       start:0x803B7418 end:0x803B75F0
+
 dolphin/src/os/OSError.c:
 	.text       start:0x801E4F60 end:0x801E560C
 	.data       start:0x803B75F0 end:0x803B7910
 	.bss        start:0x8041A870 end:0x8041A8C0
 	.sdata      start:0x8048E990 end:0x8048E998
 
+dolphin/src/os/OSLink.c:
+	.text       start:0x801E5E78 end:0x801E5E90
+	.data       start:0x803B7940 end:0x803B7990
+
+dolphin/src/os/OSMemory.c:
+	.text       start:0x801E5E90 end:0x801E6168
+	.data       start:0x803B7990 end:0x803B79A0
+
+dolphin/src/os/OSReset.c:
+	.text       start:0x801E6168 end:0x801E658C
+	.sbss       start:0x8048F2F8 end:0x8048F308
+
+dolphin/src/os/OSResetSW.c:
+	.text       start:0x801E658C end:0x801E6918
+	.sbss       start:0x8048F308 end:0x8048F328
+
+dolphin/src/os/OSRtc.c:
+	.text       start:0x801E6918 end:0x801E75C8
+	.bss        start:0x8041A8C0 end:0x8041A918
+
+dolphin/src/os/OSSync.c:
+	.text       start:0x801E75C8 end:0x801E764C
+
+dolphin/src/os/OSThread.c:
+	.text       start:0x801E764C end:0x801E88A8
+	.data       start:0x803B79A0 end:0x803B81B0
+	.bss        start:0x8041A918 end:0x8041B320
+	.sdata      start:0x8048E998 end:0x8048E9A0
+	.sbss       start:0x8048F328 end:0x8048F338
+
+dolphin/src/os/OSTime.c:
+	.text       start:0x801E88A8 end:0x801E8D24
+	.data       start:0x803B81B0 end:0x803B8210
+
 dolphin/src/os/__ppc_eabi_init.c:
 	.init       start:0x80003270 end:0x800032A0
 	.text       start:0x801E8D24 end:0x801E8DD8
+
+dolphin/src/os/OSMutex.c:
+	.text       start:0x801E8DD8 end:0x801E91F4
+
+dolphin/src/os/OSReboot.c:
+	.text       start:0x801E91F4 end:0x801E9550
+	.sbss       start:0x8048F338 end:0x8048F340
 
 Units/bActorSourceFiles.cpp:
 	.text       start:0x801F6D78 end:0x8020C6EC

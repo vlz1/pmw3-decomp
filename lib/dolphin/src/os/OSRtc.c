@@ -3,7 +3,7 @@
 
 #include "__os.h"
 
-static SramControl Scb ATTRIBUTE_ALIGN(DOLPHIN_ALIGNMENT);
+SramControl Scb ATTRIBUTE_ALIGN(DOLPHIN_ALIGNMENT);
 
 // prototypes
 static int GetRTC(u32* rtc);
