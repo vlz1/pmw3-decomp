@@ -1,6 +1,7 @@
 #pragma once
 
-enum EBVerboseLevel {
+enum EBVerboseLevel
+{
     BDVERBOSE_NONE = 0,
     BDVERBOSE_ERRORS = 1,
     BDVERBOSE_ASSERTS = 2,

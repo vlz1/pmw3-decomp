@@ -5,6 +5,10 @@
 #include <string.h>
 #include <static_data.h>
 
+extern u8* bSpecificHeapInit(void* basePtr, unsigned int size);
+extern unsigned int bSpecificHeapDefaultSize(unsigned int size);
+extern void bSpecificHeapShutdown(u8* base);
+
 extern "C" void* malloc(unsigned int size);
 extern "C" void* realloc(void* ptr, unsigned int size);
 extern "C" void free(void* ptr);

@@ -3,7 +3,8 @@
 #include <dolphin/types.h>
 #include <dolphin/os/OSMutex.h>
 
-struct _TBHeapBlock {
+struct _TBHeapBlock
+{
     u32 offset; // offset 0x0, size 0x4
     u32 size; // offset 0x4, size 0x4
     s16 used; // offset 0x8, size 0x2
@@ -19,7 +20,8 @@ struct _TBHeapBlock {
 
 typedef struct _TBHeapBlock TBHeapBlock;
 
-struct _TBHeapPool {
+struct _TBHeapPool
+{
     u8* base; // offset 0x0, size 0x4
     u8* ptr; // offset 0x4, size 0x4
     u8* prevPtr; // offset 0x8, size 0x4
@@ -33,14 +35,16 @@ struct _TBHeapPool {
 
 typedef struct _TBHeapPool TBHeapPool;
 
-struct _TBHeapGroupStack {
+struct _TBHeapGroupStack
+{
     u32 group[32]; // offset 0x0, size 0x80
     s32 currentLevel; // offset 0x80, size 0x4
 };
 
 typedef struct _TBHeapGroupStack TBHeapGroupStack;
 
-struct _TBHeap {
+struct _TBHeap
+{
     int heapSize; // offset 0x0, size 0x4
     unsigned int nextUID; // offset 0x4, size 0x4
     u8* realHeapBase; // offset 0x8, size 0x4
@@ -70,10 +74,6 @@ struct _TBHeap {
 };
 
 typedef struct _TBHeap TBHeap;
-
-u8* bSpecificHeapInit(void* basePtr, unsigned int size);
-unsigned int bSpecificHeapDefaultSize(unsigned int size);
-void bSpecificHeapShutdown(u8* base);
 
 void* bkHeapRealloc(void* ptr, int newSize);
 void* bkHeapAlloc(unsigned int size, char* file, int line, unsigned short flags);

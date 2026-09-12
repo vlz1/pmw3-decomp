@@ -218,6 +218,7 @@ Units/gamesave.cpp:
 Units/bKernelSourceFiles.cpp:
 	.text       start:0x802A9E5C end:0x802B24F8
 	.rodata     start:0x803A3D08 end:0x803A4B18
+	.data       start:0x803BAD18 end:0x803BBF50
 	.bss        start:0x804404C8 end:0x80440A4C
 	.sdata      start:0x8048EDE0 end:0x8048EEA8
 	.sbss       start:0x8048F730 end:0x8048F760
