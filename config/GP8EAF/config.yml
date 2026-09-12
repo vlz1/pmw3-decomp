@@ -1,7 +1,7 @@
 # See config.example.yml for documentation.
 object_base: orig/GP8EAF
 object: sys/main.dol
-hash: dd229978aae9f8d6aa72ee37a3369cb27bca7b92
+hash: 487CACFF357AE963E265D82F4D0EE1D6CAA3D9CE
 symbols: config/GP8EAF/symbols.txt
 splits: config/GP8EAF/splits.txt
 # Change this to match the linker version.

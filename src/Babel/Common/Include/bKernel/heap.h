@@ -82,5 +82,6 @@ void* bkHeapCalloc(unsigned int size, int value, char* file, int line, unsigned 
 void* bkHeapCallocEx(unsigned int size, int value, char* file, int line, unsigned short flags, unsigned int group, int alignment);
 void bkHeapFree(void* ptr);
 
+int bkHeapFreeSpace(int* largestFreeBlock);
 void bkHeapActivatePool(struct _TBHeapPool* pool);
 void bkHeapDeactivatePool(struct _TBHeapPool* pool, int finalise);
