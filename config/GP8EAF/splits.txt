@@ -3,8 +3,8 @@ Sections:
 	.text       type:code align:32
 	.ctors      type:rodata align:32
 	.dtors      type:rodata align:32
-	.rodata     type:rodata align:8
-	.data       type:data align:32
+	.rodata     type:rodata align:4
+	.data       type:data align:4
 	.bss        type:bss align:4
 	.sdata      type:data align:4
 	.sbss       type:bss align:4
@@ -16,6 +16,7 @@ Units/PMASourceFiles.cpp:
 	.dtors      start:0x80370164 end:0x80370168
 	.rodata     start:0x80370248 end:0x8038DC08
 	.data       start:0x803A7C60 end:0x803B6490
+	.bss        start:0x80401640 end:0x80411BC0
 
 libsn/src/__start.s:
 	.init       start:0x80003100 end:0x80003270
@@ -51,8 +52,8 @@ libc/src/locale.c:
 	.rodata     start:0x8038E0A0 end:0x8038E0F8
 	.sdata      start:0x8048E8AC end:0x8048E8B0
 
-libc/src/ctype-info.c:
-	.rodata     start:0x803978D4 end:0x8039910C
+libc/src/C-ctype.c:
+	.rodata     start:0x8038E13C end:0x8039933C
 
 dolphin/src/base/PPCArch.c:
 	.text       start:0x801E291C end:0x801E2A54
@@ -203,20 +204,27 @@ dolphin/src/pad/Pad.c:
 Units/bActorSourceFiles.cpp:
 	.text       start:0x801F6D78 end:0x8020C6EC
 	.rodata     start:0x803995B0 end:0x80399CE8
+	.data       start:0x803B94B4 end:0x803B9704
+	.bss        start:0x8041B9B0 end:0x80421E40
 
 Units/bCollisionSourceFiles.cpp:
 	.text       start:0x8020C6EC end:0x80285C04
 	.rodata     start:0x80399CE8 end:0x8039F180
+	.data       start:0x803B9704 end:0x803BA6C4
+	.bss        start:0x80421E40 end:0x80423980
 
 Units/bDisplaySourceFiles.cpp:
 	.text       start:0x80285C04 end:0x802A1ED0
 	.rodata     start:0x8039F180 end:0x803A31F0
-	.bss        start:0x80430980 end:0x80435BA0
+	.data       start:0x803BA6C4 end:0x803BAC4C
+	.bss        start:0x80430980 end:0x8043D800
 	.sbss       start:0x8048F618 end:0x8048F65C
 
 Units/bInputSourceFiles.cpp:
 	.text       start:0x802A1ED0 end:0x802A4B60
 	.rodata     start:0x803A31F0 end:0x803A33B8
+	.data       start:0x803BAC4C end:0x803BAC5C
+	.bss        start:0x8043D800 end:0x8043DF50
 	.sbss       start:0x8048F688 end:0x8048F690
 
 Units/gcSave.cpp:
@@ -228,20 +236,21 @@ Units/gcSave.cpp:
 Units/savemenu.cpp:
 	.text       start:0x802A73A8 end:0x802A9878
 	.rodata     start:0x803A3870 end:0x803A3CD0
-	.bss        start:0x8043E1C8 end:0x8043ECFC
+	.data       start:0x803BAC5C end:0x803BAD18
+	.bss        start:0x8043E1C8 end:0x80440288
 	.sdata      start:0x8048EDA8 end:0x8048EDD8
 
 Units/gamesave.cpp:
 	.text       start:0x802A9878 end:0x802A9E5C
 	.rodata     start:0x803A3CD0 end:0x803A3D08
-	.bss        start:0x80440288 end:0x80440488
+	.bss        start:0x80440288 end:0x804404C8
 	.sdata      start:0x8048EDD8 end:0x8048EDE0
 
 Units/bKernelSourceFiles.cpp:
 	.text       start:0x802A9E5C end:0x802B24F8
 	.rodata     start:0x803A3D08 end:0x803A4B18
 	.data       start:0x803BAD18 end:0x803BBF50
-	.bss        start:0x804404C8 end:0x80440A4C
+	.bss        start:0x804404C8 end:0x804464B0
 	.sdata      start:0x8048EDE0 end:0x8048EEA8
 	.sbss       start:0x8048F730 end:0x8048F760
 
@@ -253,20 +262,30 @@ Units/heap.cpp:
 Units/bMathsSourceFiles.cpp:
 	.text       start:0x802B3A3C end:0x802BABE8
 	.rodata     start:0x803A4DE8 end:0x803A5350
+	.data       start:0x803BC7FC end:0x803BC8EC
 
 Units/bSoundSourceFiles.cpp:
 	.text       start:0x802BABE8 end:0x802C51B8
 	.rodata     start:0x803A5350 end:0x803A5BA8
+	.data       start:0x803BC8EC end:0x803BD0C8
+	.bss        start:0x804464B0 end:0x80461E50
+
+Units/fEffectsSourceFiles.cpp:
+	.data       start:0x803BD0C8 end:0x803BD0E8
 
 Units/core.cpp:
 	.text       start:0x802C51B8 end:0x802C6624
 	.rodata     start:0x803A5BA8 end:0x803A5E60
+	.bss        start:0x80461E50 end:0x80462A50
+	.sdata      start:0x8048EF00 end:0x8048EF04
 
 Units/feCoreSourceFiles.cpp:
 	.text       start:0x802C6624 end:0x802E79E4
 	.ctors      start:0x80370150 end:0x80370154
 	.dtors      start:0x80370168 end:0x8037016C
 	.rodata     start:0x803A5E60 end:0x803A6A80
+	.data       start:0x803BD0E8 end:0x803BD3B8
+	.bss        start:0x80462A50 end:0x80462A70
 
 Units/CFSystemGamecube.cpp:
 	.text       start:0x802E79E4 end:0x802E7B9C
@@ -275,6 +294,8 @@ Units/CFSystemGamecube.cpp:
 Units/frRuntimeSourceFiles.cpp:
 	.text       start:0x802E7B9C end:0x803326A8
 	.rodata     start:0x803A6B30 end:0x803A7B70
+	.data       start:0x803BD3B8 end:0x803BDE4C
+	.bss        start:0x80462A70 end:0x80468860
 
 dolphin/src/os/OSAlloc.c:
 	.text       start:0x80333EE4 end:0x80334208

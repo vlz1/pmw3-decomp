@@ -413,6 +413,7 @@ config.libs = [
             Object(NonMatching, "libc/src/ctype_.c"),
             Object(NonMatching, "libc/src/locale.c"),
             Object(NonMatching, "libc/src/ctype-info.c"),
+            Object(NonMatching, "libc/src/C-ctype.c"),
         ],
         "src_dir": "lib"
     },
@@ -453,6 +454,7 @@ config.libs = [
         "objects": [
             Object(NonMatching, "Units/core.cpp"),
             Object(NonMatching, "Units/feCoreSourceFiles.cpp"),
+            Object(NonMatching, "Units/fEffectsSourceFiles.cpp"),
             Object(NonMatching, "Units/CFSystemGamecube.cpp"),
             Object(NonMatching, "Units/frRuntimeSourceFiles.cpp"),
         ]
