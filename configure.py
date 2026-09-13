@@ -225,6 +225,13 @@ cflags_base_prodg = [
     f"-I {dolphinsdk_root}/include/libc"
 ]
 
+cflags_libc = [
+    "-O2",
+    "-DGEKKO",
+    f"-I {dolphinsdk_root}/include",
+    f"-I {dolphinsdk_root}/include/libc"
+]
+
 cflags_libsn = [
     "-O2",
     "-DGEKKO",
@@ -395,6 +402,20 @@ config.libs = [
             Object(NonMatching, "dolphin/src/gd/GDTexture.c"),
         ]
     ),
+    {
+        "lib": "libc",
+        "cflags": cflags_libc,
+        "progress_category": "sdk",
+        "objects": [
+            Object(NonMatching, "libc/src/vfscanf.c"),
+            Object(NonMatching, "libc/src/sscanf.c"),
+            Object(NonMatching, "libc/src/vsprintf.c"),
+            Object(NonMatching, "libc/src/ctype_.c"),
+            Object(NonMatching, "libc/src/locale.c"),
+            Object(NonMatching, "libc/src/ctype-info.c"),
+        ],
+        "src_dir": "lib"
+    },
     {
         "lib": "libsn",
         "cflags": cflags_libsn,
