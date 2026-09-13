@@ -10,24 +10,33 @@ Sections:
 	.sbss       type:bss align:4
 	.sdata2     type:rodata align:32
 
+Units/Main.cpp:
+	.text       start:0x800032A0 end:0x8007B788
+	.ctors      start:0x80370144 end:0x80370148
+	.rodata     start:0x80370248 end:0x80375880
+	.data       start:0x803A7C60 end:0x803B211C
+	.bss        start:0x80401640 end:0x80401C10
+	.sdata      start:0x8048D688 end:0x8048D890
+	.sbss       start:0x8048F220 end:0x8048F224
+
 Units/PMASourceFiles.cpp:
-	.text       start:0x800032A0 end:0x801D5500
-	.ctors      start:0x80370144 end:0x8037014C
+	.text       start:0x8007B788 end:0x801D5500
+	.ctors      start:0x80370148 end:0x8037014C
 	.dtors      start:0x80370164 end:0x80370168
-	.rodata     start:0x80370248 end:0x8038DC08
-	.data       start:0x803A7C60 end:0x803B6490
-	.bss        start:0x80401640 end:0x80411BC0
+	.rodata     start:0x80375880 end:0x8038DC08
+	.data       start:0x803B211C end:0x803B6490
+	.bss        start:0x80401C10 end:0x80411BC0
 
-libsn/src/__start.s:
+libsn/src/crt0.s:
 	.init       start:0x80003100 end:0x80003270
-	.data       start:0x803B6490 end:0x803B64B0
+	.data       start:0x803B6490 end:0x803B64B8
 
-libsn/src/debug.c:
+libsn/src/ppcdown.s:
 	.text       start:0x801D5500 end:0x801D69DC
 	.data       start:0x803B64C0 end:0x803B65B8
 	.bss        start:0x80411BC0 end:0x8041A2C0
 
-libsn/src/serial_out.c:
+libsn/src/dummy.c:
 	.text       start:0x801D6B34 end:0x801D6C70
 
 libsn/src/fileserver.c:
@@ -275,7 +284,7 @@ Units/fEffectsSourceFiles.cpp:
 
 Units/core.cpp:
 	.text       start:0x802C51B8 end:0x802C6624
-	.rodata     start:0x803A5BA8 end:0x803A5E60
+	.rodata     start:0x803A5CF8 end:0x803A5E60
 	.bss        start:0x80461E50 end:0x80462A50
 	.sdata      start:0x8048EF00 end:0x8048EF04
 

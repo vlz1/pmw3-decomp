@@ -1,27 +1,10 @@
-.set r0, 0
-.set r1, 1
-.set r2, 2
-.set r3, 3
-.set r4, 4
-.set r5, 5
-.set r6, 6
-.set r7, 7
-.set r8, 8
-.set r9, 9
-.set r10, 10
-.set r11, 11
-.set r12, 12
-.set r13, 13
-.set r29, 29
-.set r30, 30
-.set r31, 31
+.include "macros.inc"
+.file "crt0.s"
 
 .section .init
 .balign 4
 
-.global __start
-.type __start, @function
-__start:
+.fn __start, global
     lis r1, _stack_addr@h
     ori r1, r1, _stack_addr@l
     lis r2, _SDA2_BASE_@h
@@ -107,10 +90,9 @@ __start:
 
     bl main
     b exit
+.endfn __start
 
-.global _ParseCmdLine
-.type _ParseCmdLine, @function
-_ParseCmdLine:
+.fn _ParseCmdLine, global
     lis r6, 0x8000
     ori r6, r6, 0xF4
     lwz r5, 0x0(r6)
@@ -142,8 +124,20 @@ _lp:
     clrrwi r7, r4, 5
     stw r7, 0x0(r5)
     blr
+.endfn _ParseCmdLine
 
 .data
-wdbmsg:
+.balign 8
+
+.obj wdbmsg, local
     .string "Waiting for SN Debugger...\n"
     .long 0
+.endobj wdbmsg
+
+.obj __SN_Libsn_version_v28
+    .long 0
+.endobj __SN_Libsn_version_v28
+
+.obj __SN_Libsn_version
+    .long 28
+.endobj __SN_Libsn_version

@@ -422,9 +422,9 @@ config.libs = [
         "cflags": cflags_libsn,
         "progress_category": "sdk",
         "objects": [
-            Object(Matching, "libsn/src/__start.s"),
-            Object(NonMatching, "libsn/src/debug.c"),
-            Object(NonMatching, "libsn/src/serial_out.c"),
+            Object(Matching, "libsn/src/crt0.s"),
+            Object(NonMatching, "libsn/src/ppcdown.s"),
+            Object(NonMatching, "libsn/src/dummy.c"),
             Object(NonMatching, "libsn/src/fileserver.c"),
         ],
         "src_dir": "lib"
@@ -464,6 +464,7 @@ config.libs = [
         "cflags": cflags_flare,
         "progress_category": "game",
         "objects": [
+            Object(NonMatching, "Units/Main.cpp"),
             Object(NonMatching, "Units/PMASourceFiles.cpp"),
         ]
     }

@@ -1,55 +1,14 @@
-
-/*
-    Compile unit: D:\DolphinSDK1.0\HVQ\build\libraries\hvqm4audio\src\hvqm4audio.c
-    Producer: MW EABI PPC C-Compiler
-    Language: C89
-    Code range: 0x80351304 -> 0x803519B8
-*/
-static int indexAdjustTable[16]; // size: 0x40, address: 0x803C5330
-static int stepSizeTable[89]; // size: 0x164, address: 0x803C5370
-// Range: 0x80351304 -> 0x803519B8
-void HVQM4ADPCMDecode(unsigned char * pSrc /* r3 */, unsigned char * pDst /* r4 */, int iChannels /* r1+0x10 */, unsigned long dwFormat /* r1+0x14 */, unsigned long dwSamples /* r7 */, // total size: 0x18
-struct {
-    // Members
-    unsigned char * inPtr; // offset 0x0, size 0x4
-    signed short * outPtr; // offset 0x4, size 0x4
-    signed short previous; // offset 0x8, size 0x2
-    unsigned char hi_nibble; // offset 0xA, size 0x1
-    unsigned char step_index; // offset 0xB, size 0x1
-    unsigned char reserved[2]; // offset 0xC, size 0x2
-    unsigned char * bufstart; // offset 0x10, size 0x4
-    unsigned char * bufend; // offset 0x14, size 0x4
-} * pState /* r8 */) {
-    // Local variables
-    unsigned char * inP; // r3
-    signed short * outP; // r4
-    int hi_nibble; // r27
-    int i; // r9
-    int delta; // r1+0x8
-    int diff[2]; // r1+0x44
-    int step[2]; // r1+0x3C
-    int prev[2]; // r1+0x34
-    int index[2]; // r1+0x2C
-    unsigned char b1; // r10
-    unsigned char b2; // r11
-
-    // References
-    // -> static int indexAdjustTable[16];
-    // -> static int stepSizeTable[89];
-}
-
-
 /*
     Compile unit: D:\DolphinSDK1.0\HVQ\build\libraries\hvqm4dec\src\hvqm4dec.c
     Producer: MW EABI PPC C-Compiler
     Language: C89
-    Code range: 0x803519B8 -> 0x80357860
+    Code range: 0x803B3234 -> 0x803B9D98
 */
-static char copyright[17]; // size: 0x11, address: 0x803A7B98
-static unsigned char clipTable[512]; // size: 0x200, address: 0x80484920
-static int divTable[16]; // size: 0x40, address: 0x80484B20
-static int mcdivTable[512]; // size: 0x800, address: 0x80484B60
-// Range: 0x803519B8 -> 0x80351D18
+static char copyright[17]; // size: 0x11, address: 0x8040D5C0
+static unsigned char clipTable[512]; // size: 0x200, address: 0x804D55D0
+static int divTable[16]; // size: 0x40, address: 0x804D57D0
+static int mcdivTable[512]; // size: 0x800, address: 0x804D5810
+// Range: 0x803B3234 -> 0x803B3594
 static void init_global_constants() {
     // Local variables
     int i; // r5
@@ -67,10 +26,10 @@ struct _tagHVQData {
     unsigned char dcv; // offset 0x0, size 0x1
     unsigned char bnm; // offset 0x1, size 0x1
 };
-// Range: 0xFFFFFFFF -> 0x80351D18
+// Range: 0x803B3594 -> 0x803B35A8
 static void set_border(struct _tagHVQData * p /* r1+0x0 */) {}
 
-// Range: 0x80351D18 -> 0x80351E34
+// Range: 0x803B35A8 -> 0x803B36C4
 static void setHVQPlaneDesc(// total size: 0xC
 struct {
     // Members
@@ -103,7 +62,7 @@ struct {
     } * p; // r4
 }
 
-// Range: 0xFFFFFFFF -> 0x80351E34
+// Range: 0x803B36C4 -> 0x803B371C
 static void setCode(// total size: 0x10
 struct {
     // Members
@@ -114,7 +73,7 @@ struct {
     unsigned char filter; // offset 0xD, size 0x1
 } * const str /* r1+0x0 */, unsigned char * top /* r1+0x4 */) {}
 
-// Range: 0xFFFFFFFF -> 0x80351E34
+// Range: 0x803B371C -> 0x803B3760
 static unsigned char getBit(// total size: 0x10
 struct {
     // Members
@@ -128,9 +87,9 @@ struct {
     unsigned char bit; // r3
 }
 
-static int readTree_signed; // size: 0x4, address: 0x8048FA40
-static int readTree_scale; // size: 0x4, address: 0x8048FA44
-// Range: 0x80351E34 -> 0x803521F8
+static int readTree_signed; // size: 0x4, address: 0x804D8120
+static int readTree_scale; // size: 0x4, address: 0x804D8124
+// Range: 0x803B3760 -> 0x803B3B24
 static signed short _readTree(// total size: 0x808
 struct {
     // Members
@@ -157,7 +116,7 @@ struct {
     // -> static int readTree_signed;
 }
 
-// Range: 0xFFFFFFFF -> 0x803521F8
+// Range: 0x803B3B24 -> 0x803B3B8C
 static void readTree(// total size: 0x14
 struct {
     // Members
@@ -203,7 +162,7 @@ struct {
     // -> static int readTree_signed;
 }
 
-// Range: 0x803521F8 -> 0x80352290
+// Range: 0x803B3B8C -> 0x803B3C24
 static signed short decodeHuff(// total size: 0x14
 struct {
     // Members
@@ -237,7 +196,7 @@ struct {
     signed short point; // r7
 }
 
-// Range: 0xFFFFFFFF -> 0x80352290
+// Range: 0x803B3C24 -> 0x803B3CE0
 static int decodeSOvfSym(// total size: 0x14
 struct {
     // Members
@@ -264,7 +223,7 @@ struct {
     int num; // r1+0x0
 }
 
-// Range: 0xFFFFFFFF -> 0x80352290
+// Range: 0x803B3CE0 -> 0x803B3D8C
 static int decodeUOvfSym(// total size: 0x14
 struct {
     // Members
@@ -291,7 +250,7 @@ struct {
     int num; // r1+0x0
 }
 
-// Range: 0x80352290 -> 0x803525E4
+// Range: 0x803B3D8C -> 0x803B40E0
 static void Ipic_BasisNumDec(// total size: 0x3CD0
 struct {
     // Members
@@ -623,7 +582,7 @@ struct {
     } * runcode; // r10
 }
 
-// Range: 0xFFFFFFFF -> 0x803525E4
+// Range: 0x803B40E0 -> 0x803B420C
 static signed short getDeltaDC(// total size: 0x3CD0
 struct {
     // Members
@@ -907,7 +866,7 @@ struct {
     signed short d; // r3
 }
 
-// Range: 0x803525E4 -> 0x803526F8
+// Range: 0x803B420C -> 0x803B4320
 static void IpicDcvDec(// total size: 0x3CD0
 struct {
     // Members
@@ -1198,7 +1157,7 @@ struct {
     int j; // r22
 }
 
-// Range: 0x803526F8 -> 0x80352A9C
+// Range: 0x803B4320 -> 0x803B46C4
 static void MakeNest(// total size: 0x3CD0
 struct {
     // Members
@@ -1497,7 +1456,7 @@ struct {
     unsigned char * nP; // r9
 }
 
-// Range: 0x80352A9C -> 0x80352C38
+// Range: 0x803B46C4 -> 0x803B4860
 static void WeightImBlock(unsigned char * block /* r27 */, int blockWidth /* r1+0xC */, unsigned char c /* r1+0x10 */, unsigned char u /* r1+0x11 */, unsigned char d /* r1+0x12 */, unsigned char l /* r1+0x13 */, unsigned char r /* r1+0x14 */) {
     // Local variables
     int u_d; // r6
@@ -1519,13 +1478,13 @@ static void WeightImBlock(unsigned char * block /* r27 */, int blockWidth /* r1+
     // -> static unsigned char clipTable[512];
 }
 
-// Range: 0xFFFFFFFF -> 0x80352C38
+// Range: 0x803B4860 -> 0x803B48B0
 static void dcBlock(unsigned char * block /* r6 */, int blockWidth /* r1+0x4 */, unsigned char dc /* r1+0x8 */) {
     // Local variables
     int i; // r1+0x0
 }
 
-// Range: 0xFFFFFFFF -> 0x80352C38
+// Range: 0x803B48B0 -> 0x803B4A0C
 static void OrgBlock(// total size: 0x3CD0
 struct {
     // Members
@@ -1818,7 +1777,7 @@ struct {
     int i; // r1+0x0
 }
 
-// Range: 0x80352C38 -> 0x803530E4
+// Range: 0x803B4A0C -> 0x803B4EB8
 static long GetAotBasis(// total size: 0x3CD0
 struct {
     // Members
@@ -2110,7 +2069,7 @@ struct {
     // -> static int divTable[16];
 }
 
-// Range: 0x803530E4 -> 0x803535D0
+// Range: 0x803B4EB8 -> 0x803B53A4
 static long GetMCAotBasis(// total size: 0x3CD0
 struct {
     // Members
@@ -2402,7 +2361,7 @@ struct {
     // -> static int divTable[16];
 }
 
-// Range: 0x803535D0 -> 0x80353840
+// Range: 0x803B53A4 -> 0x803B5614
 static long GetAotSum(// total size: 0x3CD0
 struct {
     // Members
@@ -2688,7 +2647,7 @@ struct {
     unsigned char bas[16]; // r1+0x24
 }
 
-// Range: 0x80353840 -> 0x80353AB0
+// Range: 0x803B5614 -> 0x803B5884
 static long GetMCAotSum(// total size: 0x3CD0
 struct {
     // Members
@@ -2974,7 +2933,7 @@ struct {
     unsigned char bas[16]; // r1+0x24
 }
 
-// Range: 0x80353AB0 -> 0x80353DC8
+// Range: 0x803B5884 -> 0x803B5B9C
 static void IntraAotBlock(// total size: 0x3CD0
 struct {
     // Members
@@ -3263,7 +3222,7 @@ struct {
     // -> static unsigned char clipTable[512];
 }
 
-// Range: 0x80353DC8 -> 0x80353F0C
+// Range: 0x803B5B9C -> 0x803B5CE0
 static void IpicBlockDec(// total size: 0x3CD0
 struct {
     // Members
@@ -3562,7 +3521,7 @@ struct {
     unsigned char dc; // r1+0x8
 }
 
-// Range: 0x80353F0C -> 0x80353FE0
+// Range: 0x803B5CE0 -> 0x803B5DB4
 static void IpicLineDec(// total size: 0x3CD0
 struct {
     // Members
@@ -3856,7 +3815,7 @@ struct {
     int i; // r31
 }
 
-// Range: 0x80353FE0 -> 0x803540BC
+// Range: 0x803B5DB4 -> 0x803B5E90
 static void IpicPlaneDec(// total size: 0x3CD0
 struct {
     // Members
@@ -4155,7 +4114,7 @@ struct {
     int j; // r30
 }
 
-// Range: 0x803540BC -> 0x80354148
+// Range: 0x803B5E90 -> 0x803B5F1C
 static void initMCHandler(// total size: 0x3CD0
 struct {
     // Members
@@ -4439,7 +4398,7 @@ struct {
     int p; // r1+0x0
 }
 
-// Range: 0xFFFFFFFF -> 0x80354148
+// Range: 0x803B5F1C -> 0x803B5F68
 static void resetMCHandler(// total size: 0x3CD0
 struct {
     // Members
@@ -4723,28 +4682,28 @@ struct {
     struct _tagPlnMCHandler * pmc; // r1+0x0
 }
 
-// Range: 0xFFFFFFFF -> 0x80354148
+// Range: 0x803B5F68 -> 0x803B5F74
 static void _setMCTop(struct _tagPlnMCHandler * pmc /* r1+0x0 */) {}
 
-// Range: 0xFFFFFFFF -> 0x80354148
+// Range: 0x803B5F74 -> 0x803B5F9C
 static void _setMCNextBlk(struct _tagPlnMCHandler * pmc /* r1+0x0 */) {}
 
-// Range: 0xFFFFFFFF -> 0x80354148
+// Range: 0x803B5F9C -> 0x803B5FC8
 static void _setMCDownBlk(struct _tagPlnMCHandler * pmc /* r1+0x0 */) {}
 
-// Range: 0xFFFFFFFF -> 0x80354148
+// Range: 0x803B5FC8 -> 0x803B5FE4
 static void setMCTop(struct _tagMCHander * mch /* r1+0x0 */) {}
 
-// Range: 0xFFFFFFFF -> 0x80354148
+// Range: 0x803B5FE4 -> 0x803B6054
 static void setMCNextBlk(struct _tagMCHander * mch /* r1+0x0 */) {}
 
-// Range: 0xFFFFFFFF -> 0x80354148
+// Range: 0x803B6054 -> 0x803B60D0
 static void setMCDownBlk(struct _tagMCHander * mch /* r1+0x0 */) {}
 
-// Range: 0xFFFFFFFF -> 0x80354148
+// Range: 0x803B60D0 -> 0x803B6110
 static void setMCTarget(struct _tagMCHander * mch /* r1+0x0 */, int direct /* r1+0x4 */) {}
 
-// Range: 0x80354148 -> 0x80354818
+// Range: 0x803B6110 -> 0x803B67E0
 static void _MotionComp(unsigned char * cP /* r9 */, int cWidth /* r1+0x4 */, unsigned char * tP /* r7 */, int tWidth /* r1+0xC */, int x_half /* r1+0x10 */, int y_half /* r1+0x14 */) {
     // Local variables
     unsigned char * up; // r7
@@ -4753,7 +4712,7 @@ static void _MotionComp(unsigned char * cP /* r9 */, int cWidth /* r1+0x4 */, un
     unsigned char * dn; // r8
 }
 
-// Range: 0x80354818 -> 0x803548DC
+// Range: 0x803B67E0 -> 0x803B68A4
 static void MotionComp(// total size: 0x3CD0
 struct {
     // Members
@@ -5065,7 +5024,7 @@ struct {
     int offset; // r3
 }
 
-// Range: 0xFFFFFFFF -> 0x803548DC
+// Range: 0x803B68A4 -> 0x803B6964
 static void decode_PB_dc(// total size: 0x3CD0
 struct {
     // Members
@@ -5354,10 +5313,10 @@ struct {
     unsigned short * bofsP; // r25
 }
 
-// Range: 0xFFFFFFFF -> 0x803548DC
+// Range: 0x803B6964 -> 0x803B6978
 static void reset_PB_dc(struct _tagMCHander * mch /* r1+0x0 */) {}
 
-// Range: 0x803548DC -> 0x80354D90
+// Range: 0x803B6978 -> 0x803B6E2C
 static void decode_PB_cc(// total size: 0x3CD0
 struct {
     // Members
@@ -5712,7 +5671,7 @@ struct {
     } * runcode; // r11
 }
 
-// Range: 0x80354D90 -> 0x8035536C
+// Range: 0x803B6E2C -> 0x803B7408
 static void PrediAotBlock(// total size: 0x3CD0
 struct {
     // Members
@@ -6010,7 +5969,7 @@ struct {
     // -> static int mcdivTable[512];
 }
 
-// Range: 0x8035536C -> 0x80355614
+// Range: 0x803B7408 -> 0x803B76B0
 static void MCBlockDecMCNest(// total size: 0x3CD0
 struct {
     // Members
@@ -6326,7 +6285,7 @@ struct {
     unsigned char * tP; // r5
 }
 
-// Range: 0x80355614 -> 0x8035576C
+// Range: 0x803B76B0 -> 0x803B7808
 static void MCBlockDecDCNest(// total size: 0x3CD0
 struct {
     // Members
@@ -6626,7 +6585,7 @@ struct {
     unsigned char d_dc; // r7
 }
 
-// Range: 0xFFFFFFFF -> 0x8035576C
+// Range: 0x803B7808 -> 0x803B795C
 static void getMVector(int * vec /* r1+0x0 */, // total size: 0x14
 struct {
     // Members
@@ -6655,7 +6614,7 @@ struct {
     int i; // r11
 }
 
-// Range: 0xFFFFFFFF -> 0x8035576C
+// Range: 0x803B795C -> 0x803B7A18
 static void initMCBproc(// total size: 0x14
 struct {
     // Members
@@ -6683,7 +6642,7 @@ struct {
     int runlng; // offset 0x4, size 0x4
 } * flg /* r30 */) {}
 
-// Range: 0xFFFFFFFF -> 0x8035576C
+// Range: 0x803B7A18 -> 0x803B7A9C
 static int getMCBproc(// total size: 0x14
 struct {
     // Members
@@ -6717,7 +6676,7 @@ struct _tagMcbMCDirFlag {
     int status; // offset 0x0, size 0x4
     int runlng; // offset 0x4, size 0x4
 };
-// Range: 0xFFFFFFFF -> 0x8035576C
+// Range: 0x803B7A9C -> 0x803B7BB8
 static void initMCBtype(// total size: 0x14
 struct {
     // Members
@@ -6740,8 +6699,8 @@ struct {
     } * tree; // offset 0x10, size 0x4
 } * code /* r30 */, struct _tagMcbMCDirFlag * flg /* r31 */) {}
 
-static int mcbtypetrans$1288[2][3]; // size: 0x18, address: 0x803A7BAC
-// Range: 0xFFFFFFFF -> 0x8035576C
+static int mcbtypetrans$1288[2][3]; // size: 0x18, address: 0x8040D5D4
+// Range: 0x803B7BB8 -> 0x803B7CA4
 static int getMCBtype(// total size: 0x14
 struct {
     // Members
@@ -6767,7 +6726,7 @@ struct {
     // -> static int mcbtypetrans$1288[2][3];
 }
 
-// Range: 0x8035576C -> 0x80355C04
+// Range: 0x803B7CA4 -> 0x803B813C
 static void spread_PB_descMap(// total size: 0xC
 struct {
     // Members
@@ -7086,7 +7045,7 @@ struct _tagMCHander {
     // Members
     struct _tagPlnMCHandler pln[3]; // offset 0x0, size 0x9C
 };
-// Range: 0x80355C04 -> 0x80355FF8
+// Range: 0x803B813C -> 0x803B8530
 static void BpicPlaneDec(// total size: 0xC
 struct {
     // Members
@@ -7387,10 +7346,10 @@ struct {
     int d; // r1+0x8
 }
 
-// Range: 0x80355FF8 -> 0x80356018
+// Range: 0x803B8530 -> 0x803B8550
 void HVQM4InitDecoder() {}
 
-// Range: 0x80356018 -> 0x8035604C
+// Range: 0x803B8550 -> 0x803B8584
 void HVQM4InitSeqObj(// total size: 0xC
 struct {
     // Members
@@ -7409,7 +7368,7 @@ struct {
     unsigned char pad[2]; // offset 0x6, size 0x2
 } * header /* r1+0x4 */) {}
 
-// Range: 0x8035604C -> 0x803560C0
+// Range: 0x803B8584 -> 0x803B85F8
 unsigned long HVQM4BuffSize(// total size: 0xC
 struct {
     // Members
@@ -7424,7 +7383,7 @@ struct {
     int v; // r7
 }
 
-// Range: 0x803560C0 -> 0x80356524
+// Range: 0x803B85F8 -> 0x803B8A5C
 void HVQM4SetBuffer(// total size: 0xC
 struct {
     // Members
@@ -7720,7 +7679,7 @@ struct {
     struct _tagHVQData * p; // r9
 }
 
-// Range: 0x80356524 -> 0x80356E4C
+// Range: 0x803B8A5C -> 0x803B9384
 void HVQM4DecodeIpic(// total size: 0xC
 struct {
     // Members
@@ -8028,7 +7987,7 @@ struct {
     // -> static int readTree_signed;
 }
 
-// Range: 0x80356E4C -> 0x80356E70
+// Range: 0x803B9384 -> 0x803B93A8
 void HVQM4DecodePpic(// total size: 0xC
 struct {
     // Members
@@ -8039,7 +7998,7 @@ struct {
     unsigned char v_samp; // offset 0x9, size 0x1
 } * obj /* r3 */, void * code /* r4 */, void * outbuf /* r5 */, void * ref1 /* r6 */) {}
 
-// Range: 0x80356E70 -> 0x80357860
+// Range: 0x803B93A8 -> 0x803B9D98
 void HVQM4DecodeBpic(// total size: 0xC
 struct {
     // Members
