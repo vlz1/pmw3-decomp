@@ -8,13 +8,19 @@
 #include "__gx.h"
 
 #if SDK_REVISION < 2
-#define BUILD_DATE  "Apr  5 2004"
-#define DBUILD_TIME "03:55:13"
-#define RBUILD_TIME "04:13:58"
+    #define BUILD_DATE  "Apr  5 2004"
+    #define DBUILD_TIME "03:55:13"
+    #define RBUILD_TIME "04:13:58"
 #else
-#define BUILD_DATE  "Nov 10 2004"
-#define DBUILD_TIME "06:08:50"
-#define RBUILD_TIME "06:27:12"
+    #if SDK_YEAR == 2003
+        #define BUILD_DATE  "Jul 23 2003"
+        #define DBUILD_TIME "06:08:50"
+        #define RBUILD_TIME "11:27:39"
+    #else
+        #define BUILD_DATE  "Nov 10 2004"
+        #define DBUILD_TIME "06:08:50"
+        #define RBUILD_TIME "06:27:12"
+    #endif
 #endif
 
 #ifdef DEBUG

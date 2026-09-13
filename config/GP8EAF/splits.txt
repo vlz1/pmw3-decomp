@@ -302,6 +302,7 @@ dolphin/src/gx/GXInit.c:
 	.bss        start:0x80483C60 end:0x80484290
 	.sdata      start:0x8048F110 end:0x8048F118
 	.sbss       start:0x8048F988 end:0x8048F9B0
+	.sdata2     start:0x804908F8 end:0x80490920
 
 dolphin/src/gx/GXFifo.c:
 	.text       start:0x803471AC end:0x80347BD8
@@ -315,6 +316,7 @@ dolphin/src/gx/GXAttr.c:
 dolphin/src/gx/GXMisc.c:
 	.text       start:0x80348FE8 end:0x803496D0
 	.data       start:0x803C49D8 end:0x803C4A40
+	.sbss       start:0x8048F9D0 end:0x8048F9E8
 
 dolphin/src/gx/GXGeometry.c:
 	.text       start:0x803496D0 end:0x80349A0C
@@ -322,27 +324,39 @@ dolphin/src/gx/GXGeometry.c:
 dolphin/src/gx/GXFrameBuf.c:
 	.text       start:0x80349A0C end:0x8034A370
 	.data       start:0x803C4A40 end:0x803C4C70
+	.sdata2     start:0x80490920 end:0x80490930
 
 dolphin/src/gx/GXLight.c:
 	.text       start:0x8034A370 end:0x8034A988
+	.sdata2     start:0x80490930 end:0x80490978
 
 dolphin/src/gx/GXTexture.c:
 	.text       start:0x8034A988 end:0x8034B9EC
+	.data       start:0x803C4C90 end:0x803C4FA8
+	.sdata      start:0x8048F128 end:0x8048F174
+	.sdata2     start:0x80490978 end:0x804909B0
 
 dolphin/src/gx/GXBump.c:
 	.text       start:0x8034B9EC end:0x8034BC60
+	.sdata2     start:0x804909B0 end:0x804909C8
 
 dolphin/src/gx/GXTev.c:
 	.text       start:0x8034BC60 end:0x8034C3C4
+	.data       start:0x803C4FA8 end:0x803C5020
 
 dolphin/src/gx/GXPixel.c:
 	.text       start:0x8034C3C4 end:0x8034CA0C
+	.data       start:0x803C5020 end:0x803C5040
+	.sdata2     start:0x804909C8 end:0x80490A28
 
 dolphin/src/gx/GXDisplayList.c:
 	.text       start:0x8034CA0C end:0x8034CC18
+	.bss        start:0x80484290 end:0x80484868
+	.sbss       start:0x8048F9E8 end:0x8048F9F0
 
 dolphin/src/gx/GXTransform.c:
 	.text       start:0x8034CC18 end:0x8034D268
+	.sdata2     start:0x80490A28 end:0x80490A40
 
 dolphin/src/gx/GXPerf.c:
 	.text       start:0x8034D268 end:0x8034DD2C
@@ -350,6 +364,7 @@ dolphin/src/gx/GXPerf.c:
 
 dolphin/src/gd/GDBase.c:
 	.text       start:0x8034DD2C end:0x8034DD74
+	.sbss       start:0x8048F9F0 end:0x8048F9F8
 
 dolphin/src/gd/GDTexture.c:
 	.text       start:0x8034DD74 end:0x8034DE04
