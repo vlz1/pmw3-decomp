@@ -14,25 +14,25 @@ SECTIONS
         *(.text)
         *(.gnu.warning)
         *(.gnu.linkonce.t*)
-    } = 0
+    }
 
-    . = ALIGN(16);
+    . = ALIGN(32);
     .ctors : 
     { 
         __CTOR_LIST__ = .;
-        LONG(-1);
+        /* LONG(-1); */
         *(.ctors)
-        LONG(0);
+        /* LONG(0); */
         /* PROVIDE (__CTOR_END__ = .); */
     }
 
-    . = ALIGN(1);
+    . = ALIGN(32);
     .dtors : 
     { 
         __DTOR_LIST__ = .;
-        LONG(-1);
+        /* LONG(-1); */
         *(.dtors)
-        LONG(0);
+        /* LONG(0); */
         /* PROVIDE (__DTOR_END__ = .); */
     }
 

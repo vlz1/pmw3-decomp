@@ -402,6 +402,20 @@ config.libs = [
             Object(NonMatching, "dolphin/src/gd/GDTexture.c"),
         ]
     ),
+    DolphinLib(
+        "ax",
+        [
+            Object(NonMatching, "dolphin/src/ax/AX.c"),
+            Object(NonMatching, "dolphin/src/ax/AXAlloc.c"),
+            Object(NonMatching, "dolphin/src/ax/AXAux.c"),
+            Object(NonMatching, "dolphin/src/ax/AXCL.c"),
+            Object(NonMatching, "dolphin/src/ax/AXComp.c"),
+            Object(NonMatching, "dolphin/src/ax/AXOut.c"),
+            Object(NonMatching, "dolphin/src/ax/AXProf.c"),
+            Object(NonMatching, "dolphin/src/ax/AXSPB.c"),
+            Object(NonMatching, "dolphin/src/ax/AXVPB.c"),
+        ]
+    ),
     {
         "lib": "libc",
         "cflags": cflags_libc,

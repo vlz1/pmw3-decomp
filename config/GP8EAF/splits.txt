@@ -16,7 +16,7 @@ Units/Main.cpp:
 	.rodata     start:0x80370248 end:0x80375880
 	.data       start:0x803A7C60 end:0x803B211C
 	.bss        start:0x80401640 end:0x80401C10
-	.sdata      start:0x8048D688 end:0x8048D890
+	.sdata      start:0x8048D680 end:0x8048D890
 	.sbss       start:0x8048F220 end:0x8048F224
 
 Units/PMASourceFiles.cpp:
@@ -133,7 +133,7 @@ dolphin/src/os/OSSync.c:
 dolphin/src/os/OSThread.c:
 	.text       start:0x801E764C end:0x801E88A8
 	.data       start:0x803B79A0 end:0x803B81B0
-	.bss        start:0x8041A918 end:0x8041B320
+	.bss        start:0x8041A918 end:0x8041B310
 	.sdata      start:0x8048E998 end:0x8048E9A0
 	.sbss       start:0x8048F328 end:0x8048F338
 
@@ -150,6 +150,7 @@ dolphin/src/os/OSMutex.c:
 
 dolphin/src/os/OSReboot.c:
 	.text       start:0x801E91F4 end:0x801E9550
+	.bss        start:0x8041B310 end:0x8041B340
 	.sbss       start:0x8048F338 end:0x8048F340
 
 dolphin/src/dvd/dvdfs.c:
@@ -215,19 +216,21 @@ Units/bActorSourceFiles.cpp:
 	.rodata     start:0x803995B0 end:0x80399CE8
 	.data       start:0x803B94B4 end:0x803B9704
 	.bss        start:0x8041B9B0 end:0x80421E40
+	.sbss       start:0x8048F550 end:0x8048F594
 
 Units/bCollisionSourceFiles.cpp:
 	.text       start:0x8020C6EC end:0x80285C04
 	.rodata     start:0x80399CE8 end:0x8039F180
 	.data       start:0x803B9704 end:0x803BA6C4
 	.bss        start:0x80421E40 end:0x80423980
+	.sbss       start:0x8048F594 end:0x8048F618
 
 Units/bDisplaySourceFiles.cpp:
 	.text       start:0x80285C04 end:0x802A1ED0
 	.rodata     start:0x8039F180 end:0x803A31F0
 	.data       start:0x803BA6C4 end:0x803BAC4C
 	.bss        start:0x80430980 end:0x8043D800
-	.sbss       start:0x8048F618 end:0x8048F65C
+	.sbss       start:0x8048F618 end:0x8048F680
 
 Units/bInputSourceFiles.cpp:
 	.text       start:0x802A1ED0 end:0x802A4B60
@@ -248,19 +251,21 @@ Units/savemenu.cpp:
 	.data       start:0x803BAC5C end:0x803BAD18
 	.bss        start:0x8043E1C8 end:0x80440288
 	.sdata      start:0x8048EDA8 end:0x8048EDD8
+	.sbss       start:0x8048F6D4 end:0x8048F714
 
 Units/gamesave.cpp:
 	.text       start:0x802A9878 end:0x802A9E5C
 	.rodata     start:0x803A3CD0 end:0x803A3D08
 	.bss        start:0x80440288 end:0x804404C8
 	.sdata      start:0x8048EDD8 end:0x8048EDE0
+	.sbss       start:0x8048F714 end:0x8048F730
 
 Units/bKernelSourceFiles.cpp:
 	.text       start:0x802A9E5C end:0x802B24F8
 	.rodata     start:0x803A3D08 end:0x803A4B18
 	.data       start:0x803BAD18 end:0x803BBF50
 	.bss        start:0x804404C8 end:0x804464B0
-	.sdata      start:0x8048EDE0 end:0x8048EEA8
+	.sdata      start:0x8048EDE0 end:0x8048EE98
 	.sbss       start:0x8048F730 end:0x8048F760
 
 Units/heap.cpp:
@@ -278,6 +283,7 @@ Units/bSoundSourceFiles.cpp:
 	.rodata     start:0x803A5350 end:0x803A5BA8
 	.data       start:0x803BC8EC end:0x803BD0C8
 	.bss        start:0x804464B0 end:0x80461E50
+	.sbss       start:0x8048F760 end:0x8048F7AC
 
 Units/fEffectsSourceFiles.cpp:
 	.data       start:0x803BD0C8 end:0x803BD0E8
@@ -286,7 +292,7 @@ Units/core.cpp:
 	.text       start:0x802C51B8 end:0x802C6624
 	.rodata     start:0x803A5CF8 end:0x803A5E60
 	.bss        start:0x80461E50 end:0x80462A50
-	.sdata      start:0x8048EF00 end:0x8048EF04
+	.sdata      start:0x8048EF00 end:0x8048EF10
 
 Units/feCoreSourceFiles.cpp:
 	.text       start:0x802C6624 end:0x802E79E4
@@ -295,6 +301,8 @@ Units/feCoreSourceFiles.cpp:
 	.rodata     start:0x803A5E60 end:0x803A6A80
 	.data       start:0x803BD0E8 end:0x803BD3B8
 	.bss        start:0x80462A50 end:0x80462A70
+	.sdata      start:0x8048EF10 end:0x8048EF50
+	.sbss       start:0x8048F7AC end:0x8048F7CC
 
 Units/CFSystemGamecube.cpp:
 	.text       start:0x802E79E4 end:0x802E7B9C
@@ -303,8 +311,10 @@ Units/CFSystemGamecube.cpp:
 Units/frRuntimeSourceFiles.cpp:
 	.text       start:0x802E7B9C end:0x803326A8
 	.rodata     start:0x803A6B30 end:0x803A7B70
-	.data       start:0x803BD3B8 end:0x803BDE4C
+	.data       start:0x803BD3B8 end:0x803BDE98
 	.bss        start:0x80462A70 end:0x80468860
+	.sdata      start:0x8048EF50 end:0x8048F0A8
+	.sbss       start:0x8048F7CC end:0x8048F7E8
 
 dolphin/src/os/OSAlloc.c:
 	.text       start:0x80333EE4 end:0x80334208
@@ -325,6 +335,43 @@ dolphin/src/os/OSMessage.c:
 dolphin/src/pad/Padclamp.c:
 	.text       start:0x80335230 end:0x80335474
 	.rodata     start:0x803A7B88 end:0x803A7B98
+
+dolphin/src/ax/AX.c:
+	.text       start:0x803372F0 end:0x80337394
+	.data       start:0x803BEDE0 end:0x803BEE28
+	.sdata      start:0x8048F0D8 end:0x8048F0E0
+
+dolphin/src/ax/AXAlloc.c:
+	.text       start:0x80337394 end:0x8033785C
+	.bss        start:0x80468B38 end:0x80468C40
+	.sbss       start:0x8048F858 end:0x8048F860
+
+dolphin/src/ax/AXAux.c:
+	.text       start:0x8033785C end:0x80337CF0
+	.bss        start:0x80468C40 end:0x8046B940
+	.sbss       start:0x8048F860 end:0x8048F898
+
+dolphin/src/ax/AXCL.c:
+	.text       start:0x80337CF0 end:0x80338420
+	.bss        start:0x8046B940 end:0x8046BF40
+	.sbss       start:0x8048F898 end:0x8048F8B0
+
+dolphin/src/ax/AXOut.c:
+	.text       start:0x80338420 end:0x80338C2C
+	.bss        start:0x8046BF40 end:0x804709E0
+	.sbss       start:0x8048F8B0 end:0x8048F8E8
+
+dolphin/src/ax/AXSPB.c:
+	.text       start:0x80338C2C end:0x803390F4
+	.bss        start:0x804709E0 end:0x80470A20
+	.sbss       start:0x8048F8E8 end:0x8048F910
+
+dolphin/src/ax/AXVPB.c:
+	.text       start:0x803390F4 end:0x8033A240
+	.data       start:0x803BEE28 end:0x803BEF00
+	.bss        start:0x80470A20 end:0x80482220
+	.sbss       start:0x8048F910 end:0x8048F920
+	.sdata2     start:0x804907F8 end:0x80490830
 
 dolphin/src/gx/GXInit.c:
 	.text       start:0x80345E2C end:0x803471AC
