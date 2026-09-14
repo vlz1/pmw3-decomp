@@ -1,22 +1,31 @@
 #include <static_data.h>
 #include <dolphin/os.h>
+#include <dolphin/vi.h>
 #include <dolphin/dvd.h>
 #include <bKernel/heap.h>
 #include <bKernel/file.h>
-#include <bKernel/time.h>
+#include <bKernel/clock.h>
 #include <bKernel/crc32.h>
 #include <bKernel/debug.h>
 #include <bKernel/mutex.h>
+#include <bKernel/event.h>
 #include <bKernel/language.h>
 #include <bKernel/gcFileHandle.h>
 
 extern "C" void PCinit();
 extern "C" int PCcreat(char* filename, int arg1);
 extern "C" int PCwrite(int fp, void* data, int nBytes);
+extern void bInitTimer();
+extern void bReadPhysicalInputDevices(int wait);
 
 unsigned int bBkInitFlags;
 int bInsideEventCallback;
-DVDDiskID* diskID;
+u64 bSoundTimer;
+static volatile int workerThreadRunning;
+static volatile int workerThreadWaiting;
+static OSCond kickThread;
+static u64 dataTransferStart;
+static DVDDiskID* diskID;
 
 char* bLanguageCode[18] = {
     "uk",
@@ -41,7 +50,7 @@ char* bLanguageCode[18] = {
 volatile int bChannelBytesTransferred[3] = { };
 volatile int bChannelLastBytesTransferred[3] = { };
 TBDebugStream bDefaultDebugStream = { { }, 2 , 0 };
-char bHomeDirectory[256] = { };
+
 
 TBDebugStream* bCurrentDebugStream = &bDefaultDebugStream;
 int bPrintPause = 0;
@@ -54,30 +63,47 @@ int resetPending = 0;
 int bResetCheckDiskDoneByUser = 0;
 int bArgc = 0;
 char** bArgv = 0;
-int bPerfMonActive = 0;
-int bPerfMonRunning = 0;
-u8* bPerfMonGraphDisplayList = 0;
-int bPerfMonGraphDisplayListSize = 0;
-unsigned long long bTimerFrequency = 0;
 
-OSMutex eventMutex;
-OSMutex filenameTableMutex;
+static TBEvent events;
+static OSMutex eventMutex;
+static OSMutex filenameTableMutex;
 
-static inline void bPopulateCRCTable()
+void bInitResources()
 {
-    const u32 polynomial = 0x4C11DB7;
 
-    for (s32 i = 0; i < 256; i++) {
-        s32 c = i << 24;
-        for (s32 j = 8; j > 0; --j) {
-            if (c < 0) {
-                c = polynomial ^ (c << 1);
-            } else {
-                c <<= 1;
-            }
-        }
-        bCRCtable[i] = c;
-    }
+}
+
+int bKernelInitBkgLoad()
+{
+    int loop;
+    int priority;
+}
+
+void bInitDebug()
+{
+    TBClock clock; // r1+0x8
+    static char* months[12] = {
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+    };
+}
+
+char bHomeDirectory[256] = { };
+
+int bHandleDVDErrors(char* buf)
+{
+    int status; // r31
+    int coverOpenedFlag; // r28
 }
 
 // TODO: weird branch
@@ -127,6 +153,26 @@ u8* bSpecificHeapInit(void* basePtr, unsigned int size)
     bkPrintf("Allocating from 0x%X [%d]\n", basePtr, (int)basePtr % 0x20);
     return (u8*)basePtr;
 }
+
+void bShutdownKernel()
+{
+
+}
+
+int bResetCheck(int reset)
+{
+    static char buf[2] = { '0', 0 };
+    struct _TBEvent* event;
+    int hardwareReset;
+
+    return 0;
+}
+
+int bPerfMonActive = 0;
+int bPerfMonRunning = 0;
+u8* bPerfMonGraphDisplayList = 0;
+int bPerfMonGraphDisplayListSize = 0;
+u64 bTimerFrequency = 0;
 
 int bkReadClock(TBClock* clock)
 {
@@ -187,7 +233,9 @@ void bkAlert(char* message)
 }
 
 int bOpenFileReadOnly(char* filename, TBFileHandleType** fpPtr, int usemalloc);
+int bFileLength(TBFileHandleType* fp);
 void bCloseFile(TBFileHandleType* fp, int usemalloc);
+void bkSleep(int miliseconds, int yield);
 
 int bkOpenFileReadOnly(char* filename, TBFileHandleType** fpPtr)
 {
@@ -236,13 +284,55 @@ static void bForegroundLoadReadCallback(long bytesTransferred, DVDFileInfo* file
     bForeGroundLoadedSize = bytesTransferred;
 }
 
-int bkSeekFile(struct _TBFileHandleType* fp, int position, EBHostSeekMode mode)
+void bkSeekFile(TBFileHandleType* fp, int position, EBHostSeekMode mode)
 {
-    int ret; // r31
-    unsigned int from; // r3
-    int vsyncs; // r30
-    int nextVsyncCount; // r31
-    return 0;
+    int ret = 1;
+    unsigned int from = 0;
+    int vsyncs;
+    int nextVsyncCount;
+    int fgl;
+
+    switch (mode)
+    {
+        case EHOSTSEEK_SET:
+            break;
+        case EHOSTSEEK_CUR:
+            from = fp->offset;
+            break;
+        case EHOSTSEEK_END:
+            from = bFileLength(fp);
+            break;
+    }
+
+    bForeGroundLoaded = 0;
+    if (!DVDSeekAsyncPrio(&fp->handle, from + position, &bForegroundLoadReadCallback, 2))
+    {
+        if ((bVerboseModule & 1) && (bVerboseLevel > 0))
+        {
+            bPrintError("bkSeekFile: DVDSeekAsync error\n");
+        }
+        ret = -1;
+    }
+
+    vsyncs = VIGetRetraceCount();
+    fgl = bForeGroundLoaded;
+    while (!fgl)
+    {
+        nextVsyncCount = VIGetRetraceCount();
+        if (vsyncs != nextVsyncCount)
+        {
+            bReadPhysicalInputDevices(0);
+            vsyncs = nextVsyncCount;
+        }
+
+        bHandleDVDErrors(0);
+        bResetCheck(0);
+        bkSleep(0, 1);
+        fgl = bForeGroundLoaded;
+    }
+
+    if (ret != -1)
+        fp->offset = from + position;
 }
 
 int bFileLength(TBFileHandleType* fp)
@@ -289,7 +379,7 @@ void bSpecificHeapShutdown(u8* base)
     OSDestroyHeap(bOSHeap);
 }
 
-void bInitKernel()
+int bInitKernel()
 {
     OSInit();
     DVDInit();
@@ -297,12 +387,23 @@ void bInitKernel()
     diskID = DVDGetCurrentDiskID();
 
     bkCreateMutex(&filenameTableMutex);
+    bInitDebug();
+    bInitTimer();
+
+    bInsideEventCallback = 0;
+    events.prev = &events;
+    events.next = &events;
+    bkCreateMutex(&eventMutex);
+
+    bInitResources();
+    bKernelInitBkgLoad();
+    return 1;
 }
 
-void bRun(void (*arg0)(void*), void* arg1)
+void bRun(void (*mainFunc)(void*), void* context)
 {
     bPopulateCRCTable();
-    arg0(arg1);
+    mainFunc(context);
     OSPanic("b:/BlitzSDK/Babel/GameCube/Src/bKernel/gcKernel.cpp", 108, "End of program");
 }
 

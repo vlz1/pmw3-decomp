@@ -1,7 +1,5 @@
 #include <bKernel/crc32.h>
 
-u32 bCRCtable[256];
-
 u32 bkCRC32(const u8* data, int count, unsigned int crc)
 {
     while (count != 0)

@@ -15,6 +15,7 @@
         ".section .rodata\n"
         "s_File:\n"
         ".asciz \"File\\0\\0\\0\\0bDataArraySort: Unimplemented sort type\\n\"\n"
+        ".size s_File, . - s_File\n"
         ".previous\n"
     );
     extern const char s_File[49];

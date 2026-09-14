@@ -85,3 +85,13 @@ void bkHeapFree(void* ptr);
 int bkHeapFreeSpace(int* largestFreeBlock);
 void bkHeapActivatePool(struct _TBHeapPool* pool);
 void bkHeapDeactivatePool(struct _TBHeapPool* pool, int finalise);
+
+inline void* bkMalloc(unsigned int size)
+{
+    return bkHeapAlloc(size, "File", 0, 0x2001);
+}
+
+inline void bkFree(void* ptr)
+{
+    bkHeapFree(ptr);
+}
