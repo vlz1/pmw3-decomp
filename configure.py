@@ -193,6 +193,8 @@ config.reconfig_deps = []
 config.scratch_preset_id = None
 
 dolphinsdk_root = "lib/dolphin"
+libc_root = "lib/libc"
+libsn_root = "lib/libsn"
 
 cflags_base_mwcc = [
     "-nodefaults",
@@ -223,21 +225,21 @@ cflags_base_prodg = [
     "-DGEKKO",
     "-I include",
     f"-I {dolphinsdk_root}/include",
-    f"-I {dolphinsdk_root}/include/libc"
+    f"-I {libc_root}/include"
 ]
 
 cflags_libc = [
     "-O2",
     "-DGEKKO",
     f"-I {dolphinsdk_root}/include",
-    f"-I {dolphinsdk_root}/include/libc"
+    f"-I {libc_root}/include"
 ]
 
 cflags_libsn = [
     "-O2",
     "-DGEKKO",
     f"-I {dolphinsdk_root}/include",
-    f"-I {dolphinsdk_root}/include/libc"
+    f"-I {libc_root}/include"
 ]
 
 # Debug flags
