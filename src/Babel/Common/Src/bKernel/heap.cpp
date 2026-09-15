@@ -1,9 +1,10 @@
+#include <staticData.h>
 #include <bKernel/heap.h>
 #include <bKernel/mutex.h>
 #include <bKernel/debug.h>
 #include <bKernel/globals.h>
+#include <bMaths/dataArray.h>
 #include <string.h>
-#include <static_data.h>
 
 extern u8* bSpecificHeapInit(void* basePtr, unsigned int size);
 extern unsigned int bSpecificHeapDefaultSize(unsigned int size);
@@ -527,7 +528,8 @@ void* bkHeapRealloc(void* ptr, int newSize)
 
     if (ptr == NULL)
     {
-        return (void*)bkHeapAllocEx(newSize, (char*)s_File, 0, 0x2006, bGetCurrentGroup(), 0);
+        char* file = (char*)UNIT_DATA(File, "File");
+        return (void*)bkHeapAllocEx(newSize, file, 0, 0x2006, bGetCurrentGroup(), 0);
     }
 
     if (newSize == 0)
@@ -675,7 +677,7 @@ TBHeapPool* bHeapCreatePool(unsigned int size, void* memPtr)
     }
     else
     {
-        char* file = (char*)s_File;
+        char* file = (char*)UNIT_DATA(File, "File");
         pool->userAllocated = 0;
         pool->base = (u8*)bkHeapAllocEx(size, file, 0, 0x2006, bGetCurrentGroup(), 0);
     }
@@ -788,7 +790,7 @@ u32 bGetCurrentGroup()
 
 int bkHeapGroupPush(const char* const group)
 {
-    if (bHeap.groupStack.currentLevel == 0x1f)
+    if (bHeap.groupStack.currentLevel == 0x1F)
         return 0;
     bHeap.groupStack.group[++bHeap.groupStack.currentLevel] = (u32)group;
     return 1;

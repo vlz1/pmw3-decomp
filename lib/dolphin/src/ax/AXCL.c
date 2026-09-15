@@ -11,6 +11,8 @@ static u32 __AXCommandListCycles;
 static u32 __AXCompressor;
 u32 __AXClMode;
 
+void AXSetCompressor(u32 i);
+
 u32 __AXGetCommandListCycles(void) {
     return __AXCommandListCycles;
 }

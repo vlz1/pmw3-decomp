@@ -221,6 +221,7 @@ cflags_base_prodg = [
     "-O2",
     "-gdwarf+",
     "-DGEKKO",
+    "-I include",
     f"-I {dolphinsdk_root}/include",
     f"-I {dolphinsdk_root}/include/libc"
 ]
@@ -444,6 +445,24 @@ config.libs = [
         "src_dir": "lib"
     },
     {
+        "lib": "bKernel",
+        "cflags": [*cflags_babel, "-DCURRENT_UNIT=bKernel"],
+        "progress_category": "babel",
+        "objects": [
+            Object(NonMatching, "UnitData/bKernelSourceFiles.cpp"),
+            Object(NonMatching, "Units/bKernelSourceFiles.cpp"),
+        ]
+    },
+    {
+        "lib": "bKernelHeap",
+        "cflags": [*cflags_babel, "-DCURRENT_UNIT=bKernelHeap"],
+        "progress_category": "babel",
+        "objects": [
+            Object(NonMatching, "UnitData/heap.cpp"),
+            Object(NonMatching, "Units/heap.cpp"),
+        ]
+    },
+    {
         "lib": "Babel",
         "cflags": cflags_babel,
         "progress_category": "babel",
@@ -451,14 +470,12 @@ config.libs = [
             Object(NonMatching, "Units/gamesave.cpp"),
             Object(NonMatching, "Units/savemenu.cpp"),
             Object(NonMatching, "Units/gcSave.cpp"),
-            Object(NonMatching, "Units/heap.cpp"),
-            Object(NonMatching, "Units/bKernelSourceFiles.cpp"),
             Object(NonMatching, "Units/bActorSourceFiles.cpp"),
             Object(NonMatching, "Units/bCollisionSourceFiles.cpp"),
             Object(NonMatching, "Units/bDisplaySourceFiles.cpp"),
             Object(NonMatching, "Units/bInputSourceFiles.cpp"),
             Object(NonMatching, "Units/bMathsSourceFiles.cpp"),
-            Object(NonMatching, "Units/bSoundSourceFiles.cpp"),
+            Object(NonMatching, "Units/bSoundSourceFiles.cpp")
         ]
     },
     {

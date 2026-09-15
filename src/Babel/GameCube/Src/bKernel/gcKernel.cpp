@@ -1,4 +1,3 @@
-#include <static_data.h>
 #include <dolphin/os.h>
 #include <dolphin/vi.h>
 #include <dolphin/dvd.h>
@@ -50,7 +49,6 @@ char* bLanguageCode[18] = {
 volatile int bChannelBytesTransferred[3] = { };
 volatile int bChannelLastBytesTransferred[3] = { };
 TBDebugStream bDefaultDebugStream = { { }, 2 , 0 };
-
 
 TBDebugStream* bCurrentDebugStream = &bDefaultDebugStream;
 int bPrintPause = 0;
@@ -162,7 +160,7 @@ void bShutdownKernel()
 int bResetCheck(int reset)
 {
     static char buf[2] = { '0', 0 };
-    struct _TBEvent* event;
+    TBEvent* event;
     int hardwareReset;
 
     return 0;
@@ -194,7 +192,7 @@ TBDebugStream* bkCreateDebugStream(TBDebugStream* stream, char* filename, unsign
 {
     if (stream == NULL)
     {
-        stream = (TBDebugStream*)bkHeapAlloc(sizeof(TBDebugStream), (char*)s_File, 0, 0x2006);
+        stream = (TBDebugStream*)bkHeapAlloc(sizeof(TBDebugStream), (char*)UNIT_DATA(File, "File"), 0, 0x2006);
         if (stream == NULL)
             return (TBDebugStream*)NULL;
         flags |= 1;
@@ -249,7 +247,7 @@ int bOpenFileReadOnly(char* filename, TBFileHandleType** fpPtr, int usemalloc)
     char* cp = buf; // r31
 
     if (usemalloc)
-        fp = (TBFileHandleType*)bkHeapAlloc(sizeof(TBFileHandleType), (char*)s_File, 0, 0x2006);
+        fp = (TBFileHandleType*)bkHeapAlloc(sizeof(TBFileHandleType), "File", 0, 0x2006);
     else
         fp = *fpPtr;
     fp->offset = 0;

@@ -260,17 +260,24 @@ Units/gamesave.cpp:
 	.sdata      start:0x8048EDD8 end:0x8048EDE0
 	.sbss       start:0x8048F714 end:0x8048F730
 
+UnitData/bKernelSourceFiles.cpp:
+	.rodata     start:0x803A3D08 end:0x803A3D3C
+
 Units/bKernelSourceFiles.cpp:
-	.text       start:0x802A9E5C end:0x802B24F8
-	.rodata     start:0x803A3D08 end:0x803A4B18
+	.text       start:0x802A9E5C end:0x802B2524
+	.ctors      start:0x8037014C end:0x80370150
+	.rodata     start:0x803A3D3C end:0x803A4B18
 	.data       start:0x803BAD18 end:0x803BBF50
 	.bss        start:0x804404C8 end:0x804464B0
 	.sdata      start:0x8048EDE0 end:0x8048EE98
 	.sbss       start:0x8048F730 end:0x8048F760
 
+UnitData/heap.cpp:
+	.rodata     start:0x803A4B18 end:0x803A4B4C
+
 Units/heap.cpp:
 	.text       start:0x802B2524 end:0x802B3A3C
-	.rodata     start:0x803A4B18 end:0x803A4DE8
+	.rodata     start:0x803A4B4C end:0x803A4DE8
 	.data       start:0x803BBF50 end:0x803BC7FC
 
 Units/bMathsSourceFiles.cpp:

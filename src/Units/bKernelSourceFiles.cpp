@@ -1,4 +1,6 @@
-#include <static_data.h>
+#include <dolphin/types.h>
+#include <bKernel/heap.h>
+#include <bMaths/dataArray.h>
 
 unsigned int bCRCtable[256];
 
