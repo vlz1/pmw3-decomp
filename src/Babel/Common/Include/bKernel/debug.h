@@ -14,3 +14,5 @@ typedef struct _TBDebugStream TBDebugStream;
 void bInitDebug();
 void bPrintError(char* format, ...);
 void bkPrintf(char* format, ...);
+TBDebugStream* bkCreateDebugStream(TBDebugStream* stream, char* filename, unsigned int flags);
+void bkSetDebugStream(TBDebugStream* stream);

@@ -1,6 +1,6 @@
 #pragma once
 
-enum EBLanguageID
+typedef enum EBLanguageID
 {
     BLANGUAGEID_UK = 0,
     BLANGUAGEID_F = 1,
@@ -26,6 +26,7 @@ enum EBLanguageID
     BLANGUAGEID_USS = 21,
     BLANGUAGEID_USF = 22,
     BLANGUAGEID_UNKNOWN = 23,
-};
+} EBLanguageID;
 
 EBLanguageID bkGetSystemLanguage();
+void bkSetLanguage(EBLanguageID languageId);

@@ -13,6 +13,12 @@ typedef struct _TBEventClientQueue TBEventClientQueue;
 typedef struct _TBEventClient TBEventClient;
 typedef struct _TBEvent TBEvent;
 
+struct _TBEventEntry
+{
+    char parms[256]; // offset 0x0, size 0x100
+    unsigned char data[16]; // offset 0x100, size 0x10
+};
+
 struct _TBEventClientCallback
 {
     void (* callback)(char *, char *, void *, void *); // offset 0x0, size 0x4
@@ -50,3 +56,7 @@ struct _TBEvent
     int noofQueues; // offset 0x4C, size 0x4
     int refCount; // offset 0x50, size 0x4
 };
+
+int bkCreateEvent(char* eventName);
+int bkPopEvent(TBEventClient* client, char* parmBuffer, void* data);
+void bkDeleteEvent(char* eventName);

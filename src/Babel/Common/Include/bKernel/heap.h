@@ -87,11 +87,14 @@ int bkHeapFreeSpace(int* largestFreeBlock);
 void bkHeapActivatePool(struct _TBHeapPool* pool);
 void bkHeapDeactivatePool(struct _TBHeapPool* pool, int finalise);
 
+#define HEAPALLOC_FLAGS_MALLOC  0x2000
+#define HEAPALLOC_FLAGS_NEW     0x1000
+
 DEFINE_UNIT_STRING(File, "File");
 
 inline void* bkMalloc(unsigned int size)
 {
-    return bkHeapAlloc(size, (char*)UNIT_DATA(File, "File"), 0, 0x2001);
+    return bkHeapAlloc(size, (char*)UNIT_DATA(File, "File"), 0, HEAPALLOC_FLAGS_MALLOC | 1);
 }
 
 inline void bkFree(void* ptr)

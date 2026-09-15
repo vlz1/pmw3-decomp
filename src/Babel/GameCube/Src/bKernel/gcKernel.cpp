@@ -1,3 +1,6 @@
+#include <stdarg.h>
+#include <string.h>
+#include <stdio.h>
 #include <dolphin/os.h>
 #include <dolphin/vi.h>
 #include <dolphin/dvd.h>
@@ -8,14 +11,48 @@
 #include <bKernel/debug.h>
 #include <bKernel/mutex.h>
 #include <bKernel/event.h>
+#include <bKernel/bkgLoad.h>
 #include <bKernel/language.h>
+#include <bKernel/resource.h>
 #include <bKernel/gcFileHandle.h>
+
+volatile int bBytesTransferred = 0;
+volatile int bLastBytesTransferred = 0;
+
+
+unsigned int bCRCtable[256];
+char* bFileSearchPath[4];
+TBResourceInfo bGlobalResourceList;
+int bNoofBkgLoadsInListOnChannel[3];
+
+enum EBVerboseLevel bVerboseLevel = BDVERBOSE_WARNINGS;
+unsigned int bVerboseModule = ~0U;
+unsigned int bVerboseFlags = 1;
+static int bVerboseStackSize = 0;
+static enum EBVerboseLevel bVerboseLevelStack[4];
+static unsigned int bVerboseModuleStack[4];
+static unsigned int bVerboseFlagsStack[4];
+static int sigDecoded = 0;
+EBLanguageID bLanguage = BLANGUAGEID_UK;
+int bFileSearchPaths = 0;
+int bFileSearchFlags = 0;
+int bSoundTimerInited = 0;
+float bSoundTimeMilliseconds = 0.0f;
+static int noofBkgLoadsInList = 0;
+static unsigned int bkgCommandUid = 0;
+static int quitThread = 0;
+static int bkgBusy = 0;
+static int bkgLoadWake = 0;
+static int desiredTransferRate = 104857600;
 
 extern "C" void PCinit();
 extern "C" int PCcreat(char* filename, int arg1);
 extern "C" int PCwrite(int fp, void* data, int nBytes);
 extern void bInitTimer();
+extern void bShutdownTimer();
+extern void bkPerfMonShutdown();
 extern void bReadPhysicalInputDevices(int wait);
+extern TBResourceInfo bGlobalResourceList;
 
 unsigned int bBkInitFlags;
 int bInsideEventCallback;
@@ -25,6 +62,323 @@ static volatile int workerThreadWaiting;
 static OSCond kickThread;
 static u64 dataTransferStart;
 static DVDDiskID* diskID;
+
+
+extern TBDebugStream bDefaultDebugStream;
+
+TBDebugStream* bCurrentDebugStream = &bDefaultDebugStream;
+int bPrintPause = 0;
+static volatile int bForeGroundLoaded = 0;
+static volatile int bForeGroundLoadedSize = 0;
+char bDiskErrorString[2] = { 0 };
+int bOSHeap = 0;
+char bHomeSuffix[8] = { 0 };
+int resetPending = 0;
+int bResetCheckDiskDoneByUser = 0;
+int bArgc = 0;
+char** bArgv = NULL;
+
+unsigned int resourceTypeTag[21] = {
+    *(u32*)"TEXR",
+    *(u32*)"ACTR",
+    *(u32*)"SAMP",
+    *(u32*)"FONT",
+    *(u32*)"STAB",
+    *(u32*)"SPLA",
+    *(u32*)"SET ",
+    *(u32*)"CMES",
+    *(u32*)"ASTR",
+    *(u32*)"LIPS",
+    *(u32*)"FMSH",
+    *(u32*)"FWRL",
+    *(u32*)"SBNK",
+    *(u32*)"SPAT",
+    *(u32*)"LTMX",
+    *(u32*)"SIMD",
+    *(u32*)"SUBT",
+    *(u32*)"MTRL",
+    *(u32*)"BLDR",
+    *(u32*)"VSHR",
+    *(u32*)"PSHR"
+};
+
+static TBEvent events;
+static OSMutex eventMutex;
+static OSMutex filenameTableMutex;
+TBResourceInfo bGlobalResourceSubList[2];
+static TBkgSchedulerChannel bkgChannel[3];
+static TBBkgLoadCmd bkgLoadList[16];
+static TBFileHandleType bkgFileHandle[3];
+static OSThread threadHandle;
+static unsigned char threadStack[4096];
+static OSMutex bkgQueueMutex;
+static OSMutex bkgRunningMutex;
+static char debugBuffer[2048];
+static OSMutex bPrintfMutex;
+
+void bRecordError(char* errorStr, int module)
+{
+
+}
+
+void bCheckSignature()
+{
+    TBClock clock; // r1+0x8
+    unsigned long long time; // r28
+    int expYear; // r30
+    int expMonth; // r29
+    int expDay; // r28
+    int l; // r10
+    int seed; // r9
+}
+
+inline TBEvent* bFindEvent(u32 crc)
+{
+    for (TBEvent* event = events.next; event != &events; event = event->next)
+    {
+        if (event->crc == crc)
+            return event;
+    }
+    return NULL;
+}
+
+int bkCreateEvent(char* eventName)
+{
+    TBEvent* event;
+    u32 crc = bkStringLwrCRC(eventName, 0);
+
+    bkWaitMutex(&eventMutex);
+
+    event = bFindEvent(crc);
+    if (event)
+    {
+        ++event->refCount;
+        bkReleaseMutex(&eventMutex);
+        return 1;
+    }
+
+    event = (TBEvent*)bkHeapAllocEx(sizeof(TBEvent), (char*)UNIT_DATA(File, "File"), 0, 0x2001, (u32)"Event", 0);
+    if (!event)
+    {
+        bkReleaseMutex(&eventMutex);
+        return 0;
+    }
+
+    event->prev = events.prev;
+    event->next = &events;
+
+    event->prev->next = event;
+    event->next->prev = event;
+
+    strcpy(event->name, eventName);
+
+    event->clients.prev = &event->clients;
+    event->clients.next = &event->clients;
+
+    event->crc = crc;
+    event->noofQueues = 0;
+    event->refCount = 1;
+    bkReleaseMutex(&eventMutex);
+    return 1;
+}
+
+int bkPopEvent(TBEventClient* client, char* parmBuffer, void* data)
+{
+    // client->type always seems to be EBEVENTCLIENTTYPE_QUEUE
+
+    if (client->queue.size == 0)
+        return 0;
+
+    // TODO: Why are there NULL checks on the client->queue.queue.parms and data arrays??
+    // This is worth looking into later, because there may be inline shenanigans.
+
+    bkWaitMutex(&eventMutex);
+    if ((client->queue.flags & 1) != 0)
+    {
+        int i = --client->queue.size;
+        if ((parmBuffer != NULL) && (client->queue.queue[i].parms != NULL))
+        {
+            strcpy(parmBuffer, (client->queue.queue[i].parms));
+        }
+
+        if ((data != NULL) && (client->queue.queue[client->queue.size].data != NULL))
+        {
+            memcpy(data, client->queue.queue[client->queue.size].data, sizeof(client->queue.queue->data));
+        }
+    }
+    else
+    {
+        if ((parmBuffer != NULL) && (client->queue.queue != NULL))
+        {
+            strcpy(parmBuffer, client->queue.queue->parms);
+        }
+
+        if ((data != NULL) && (client->queue.queue->data != NULL))
+        {
+            memcpy(data, client->queue.queue->data, 16);
+        }
+
+        if (client->queue.size > 1)
+        {
+            memmove(client->queue.queue, client->queue.queue + 1, (client->queue.size - 1) * sizeof(TBEventEntry));
+        }
+
+        --client->queue.size;
+    }
+    bkReleaseMutex(&eventMutex);
+    return 1;
+}
+
+void bkDeleteEvent(char* eventName)
+{
+    TBEvent* event; // r31
+}
+
+int bkGenerateEvent(char* eventName, char* parmString, void* data, int takeMutex)
+{
+    TBEvent* event; // r3
+    TBEventClient* client; // r31
+}
+
+void bkSetFileSearchPath(int flags, int noofPaths, ...)
+{
+    va_list argp;
+
+    bFileSearchFlags = flags;
+    bFileSearchPaths = noofPaths;
+
+    va_start(argp, noofPaths);
+    for (int c = 0; c < noofPaths; ++c)
+    {
+        bFileSearchPath[c] = va_arg(argp, char*);
+    }
+    va_end(argp);
+}
+
+int bkOpenFileReadOnlyWithSearch(char* filename, TBFileHandleType** fp, char* fullpath, int maxlen, int flags)
+{
+    // Local variables
+    char buf[256]; // r1+0x8
+    char filebuf[256]; // r1+0x108
+    char pathbuf[256]; // r1+0x208
+    char workbuf[256]; // r1+0x308
+    int result; // r31
+
+    /* anonymous block */ {
+        int c; // r29
+    }
+}
+
+int bkLoadFilenameTable(TBPackageIndex* index, char* filename)
+{
+    struct _TBFileIndex* file; // r11
+    char* filenameData; // r29
+    unsigned int* indexInfo; // r10
+    struct _TBFilenameTableHeader* table; // r31
+    int i; // r8
+    int ret; // r28
+}
+
+int bkDeleteFilenameTable(TBPackageID id)
+{
+    TBFilenameTableHeader* table; // r31
+    TBFilenameTableHeader* temp; // r30
+}
+
+TBFileIndex* bFindIndexFile(TBPackageIndex* index, char* filename)
+{
+    TBFileIndex* filePtr; // r0
+}
+
+unsigned char* bkLoadFileByCRC(TBPackageIndex* index, unsigned int crc, unsigned char* dataPtr, int* retSize, TBFileTagInfo* tagInfo, int noofExtraBytes)
+{
+    TBFileIndex* filePtr; // r31
+    int ret;
+}
+
+TBPackageIndex* bOpenPackage(char* filename)
+{
+    TBPackageIndex * index; // r31
+    char buf[256]; // r1+0x8
+    char dir[256]; // r1+0x108
+    TBFileHandleType* fp; // r1+0x208
+
+    bPrintError("bkOpenPackage: Out of memory \'%s\' (%d bytes wanted)\n", filename, 0x140);
+    bPrintError("bkOpenPackage: (only %d bytes available: %d more required) ***\n");
+    bPrintError("bkOpenPackage: Could not open file \'%s\'\n");
+    bPrintError("bkOpenPackage: Could not read index from \'%s\'\n");
+    bPrintError("bkOpenPackage: Package is empty! \'%s\'\n");
+    bPrintError("bkOpenPackage: Out of memory for index \'%s\' (wanted %d bytes)\n");
+    bPrintError("bkOpenPackage: (only %d bytes available: %d more required) ***\n");
+    return NULL;
+}
+
+void bInitResources()
+{
+    memset(&bGlobalResourceList, 0, sizeof(bGlobalResourceList));
+    memset(bGlobalResourceSubList, 0, sizeof(bGlobalResourceSubList));
+    bGlobalResourceList.crc = 0x80000000;
+    bGlobalResourceSubList[1].crc = 0xA0000000;
+    bGlobalResourceList.child2 = bGlobalResourceSubList + 1;
+
+    bGlobalResourceSubList[1].child1 = 0;
+    bGlobalResourceSubList[0].crc = 0x40000000;
+    bGlobalResourceList.parent = 0;
+    bGlobalResourceList.child1 = bGlobalResourceSubList;
+    bGlobalResourceList.type = 0xFF;
+    bGlobalResourceSubList[0].type = 0xFF;
+    bGlobalResourceSubList[1].type = 0xFF;
+    bGlobalResourceSubList[1].parent = &bGlobalResourceList;
+    bGlobalResourceSubList[0].parent = &bGlobalResourceList;
+    bGlobalResourceSubList[0].child1 = 0;
+    bGlobalResourceSubList[0].child2 = 0;
+    bGlobalResourceSubList[1].child2 = 0;
+}
+
+void bDeleteGlobalResource(TBResourceInfo* resPtr)
+{
+
+}
+
+static int bResLoadOrder[21] = {
+    18, 19, 20, 17,
+    0, 1, 2, 3,
+    4, 5, 6, 7,
+    8, 9, 10, 11,
+    12, 13, 14, 15,
+    16
+};
+
+int bLoadPackageResources(TBPackageIndex* package, unsigned int typeMask, int groupId, unsigned int tagMatch) {
+    TBFileIndex* filePtr; // r9
+    TBFileIndex* searchPtr;
+    int l; // r31
+    int k; // ctr
+    int noofLoaded; // r27
+    int matchMask; // r6
+    int typeLoop; // r29
+    int found; // r7
+    unsigned int * tag; // r11
+    int prevOffs; // r24
+    int searchOffs; // r10
+
+    {
+        // Range: 0x80240D74 -> 0x80240D8C
+        int strLoaded; // r3
+    }
+
+    {
+        // Range: 0x80240D98 -> 0x80240DAC
+        int lipsyncsLoaded; // r3
+    }
+
+}
+
+int bKernelInitBkgLoad()
+{
+    int loop;
+    int priority;
+}
 
 char* bLanguageCode[18] = {
     "uk",
@@ -50,33 +404,6 @@ volatile int bChannelBytesTransferred[3] = { };
 volatile int bChannelLastBytesTransferred[3] = { };
 TBDebugStream bDefaultDebugStream = { { }, 2 , 0 };
 
-TBDebugStream* bCurrentDebugStream = &bDefaultDebugStream;
-int bPrintPause = 0;
-static volatile int bForeGroundLoaded = 0;
-static volatile int bForeGroundLoadedSize = 0;
-char bDiskErrorString[2] = { 0 };
-int bOSHeap = 0;
-char bHomeSuffix[8] = { 0 };
-int resetPending = 0;
-int bResetCheckDiskDoneByUser = 0;
-int bArgc = 0;
-char** bArgv = 0;
-
-static TBEvent events;
-static OSMutex eventMutex;
-static OSMutex filenameTableMutex;
-
-void bInitResources()
-{
-
-}
-
-int bKernelInitBkgLoad()
-{
-    int loop;
-    int priority;
-}
-
 void bInitDebug()
 {
     TBClock clock; // r1+0x8
@@ -94,6 +421,12 @@ void bInitDebug()
         "Nov",
         "Dec"
     };
+
+    bkCreateMutex(&bPrintfMutex);
+    if (bBkInitFlags & 8)
+    {
+        bkCreateDebugStream(&bDefaultDebugStream, "debugLog.txt", 6);
+    }
 }
 
 char bHomeDirectory[256] = { };
@@ -104,7 +437,7 @@ int bHandleDVDErrors(char* buf)
     int coverOpenedFlag; // r28
 }
 
-// TODO: weird branch
+
 u8* bSpecificHeapInit(void* basePtr, unsigned int size)
 {
     BOOL old = OSDisableInterrupts();
@@ -116,6 +449,7 @@ u8* bSpecificHeapInit(void* basePtr, unsigned int size)
     bkPrintf("Available Memory %d bytes from 0x%X to 0x%X\n", 
         (s32)arenaHi - (s32)arenaLo, arenaLo, arenaHi);
 
+    // TODO: weird branch
     if (basePtr == NULL || basePtr >= arenaLo)
     {
         base = ((u32)basePtr + size);
@@ -124,7 +458,7 @@ u8* bSpecificHeapInit(void* basePtr, unsigned int size)
             bkPrintf("Unable to allocate memory of %d bytes from specified base 0x%X to 0x%X [0x%X 0x%X]\n",
                 size, basePtr, base, arenaLo, arenaHi);
             OSRestoreInterrupts(old);
-            return (u8*)NULL;
+            return NULL;
         }
     }
     else
@@ -139,7 +473,7 @@ u8* bSpecificHeapInit(void* basePtr, unsigned int size)
         bkPrintf("Unable to allocate aligned memory of %d bytes [0x%X 0x%X] %d available\n",
             size, basePtr, arenaHi, (u32)arenaHi - (u32)basePtr);
         OSRestoreInterrupts(old);
-        return (u8*)NULL;
+        return NULL;
     }
 
     heap = OSInitAlloc((void*)base, arenaHi, 1);
@@ -152,9 +486,44 @@ u8* bSpecificHeapInit(void* basePtr, unsigned int size)
     return (u8*)basePtr;
 }
 
+void bDeleteAllResources(TBResourceInfo* res);
+void bDeleteResource(void* resPtr);
+
 void bShutdownKernel()
 {
+    bkDeleteFilenameTable(TBPackageID());
+    if (bGlobalResourceList.child1->child1 != NULL
+        || bGlobalResourceList.child1->child2 != NULL
+        || bGlobalResourceList.child2->child1 != NULL
+        || bGlobalResourceList.child2->child2 != NULL)
+    {
+        bkPrintf("\n*** RESOURCE LEAKS DETECTED :\n");
+        bkPrintf("\n");
+    }
+    else
+    {
+        bkPrintf("Resource list is clean\n");
+    }
 
+    if (bGlobalResourceList.child1 != NULL)
+    {
+        bDeleteAllResources(bGlobalResourceList.child1);
+    }
+
+    if (bGlobalResourceList.child2 != NULL)
+    {
+        bDeleteAllResources(bGlobalResourceList.child2);
+    }
+
+    bDeleteResource(&bGlobalResourceList);
+    bkDeleteMutex(&filenameTableMutex);
+    bkDeleteEvent("_DiskError");
+    bInsideEventCallback = 0;
+    bkDeleteEvent(NULL);
+    bkDeleteMutex(&eventMutex);
+    bShutdownTimer();
+    bkDeleteMutex((OSMutex *)&bPrintfMutex);
+    bkPerfMonShutdown();
 }
 
 int bResetCheck(int reset)
@@ -166,11 +535,127 @@ int bResetCheck(int reset)
     return 0;
 }
 
+int bkFreePackageMemory(TBPackageIndex** index)
+{
+
+}
+
+void bkSetVerboseLevel(enum EBVerboseLevel level, unsigned int module, unsigned int flags)
+{
+    if (level < BDVERBOSE_ASSERTS)
+    {
+        bkPrintf("*WARNING* bkSetVerboseLevel: Setting level < BDVERBOSE_ASSERTS could cause problems\n");
+    }
+
+    bVerboseModule = module;
+    bVerboseLevel = level;
+    bVerboseFlags = flags;
+}
+
+void bkPushVerboseLevel(enum EBVerboseLevel level, unsigned int modules, unsigned int flags)
+{
+    bVerboseModuleStack[bVerboseStackSize] = bVerboseModule;
+    bVerboseLevelStack[bVerboseStackSize] = bVerboseLevel;
+    bVerboseFlagsStack[bVerboseStackSize] = bVerboseFlags;
+
+    if (level < 2)
+    {
+        bkPrintf("*WARNING* bkSetVerboseLevel: Setting level < BDVERBOSE_ASSERTS could cause problems\n");
+    }
+
+    bVerboseModule = modules;
+    bVerboseLevel = level;
+    bVerboseFlags = flags;
+    bVerboseStackSize += 1;
+}
+
+void bkPopVerboseLevel()
+{
+    --bVerboseStackSize;
+    bVerboseModule = bVerboseModuleStack[bVerboseStackSize];
+    bVerboseLevel = bVerboseLevelStack[bVerboseStackSize];
+    bVerboseFlags = bVerboseFlagsStack[bVerboseStackSize];
+}
+
+char* bkDataToSafeString(unsigned char* data, int dataSize, char* buffer, int bufferSize)
+{
+    int length;
+    char* bufPtr = buffer;
+
+    if (data == NULL)
+    {
+        *buffer = '\0';
+        return buffer;
+    }
+
+    length = bufferSize - 1;
+    if (length > dataSize)
+        length = dataSize;
+
+    while (length-- > 0)
+    {
+        if (*data >= ' ')
+            *bufPtr++ = *data;
+        else
+            *bufPtr++ = '.';
+
+        ++data;
+    }
+
+    *bufPtr = '\0';
+    return buffer;
+}
+
+#include "../../Common/Src/bKernel/crc32.cpp"
+
+void bkSetLanguage(EBLanguageID languageId)
+{
+    bLanguage = languageId;
+}
+
 int bPerfMonActive = 0;
 int bPerfMonRunning = 0;
 u8* bPerfMonGraphDisplayList = 0;
 int bPerfMonGraphDisplayListSize = 0;
 u64 bTimerFrequency = 0;
+
+void bDeletePackageResources(TBPackageID packageId, unsigned int typeMask, TBResourceInfo* res)
+{
+
+}
+
+void bDeletePackageResources(TBPackageID packageId, unsigned int typeMask)
+{
+
+}
+
+void bDeleteResourceGroup(unsigned int typeMask, unsigned int groupID, TBResourceInfo* res)
+{
+
+}
+
+void bDeleteResourceGroup(unsigned int typeMask, unsigned int groupID)
+{
+
+}
+
+void bDeleteAllResources(TBResourceInfo* res)
+{
+
+}
+
+void bDeleteResource(void* resPtr)
+{
+    TBResourceInfo* delRes;
+}
+
+int bkCancelLoadPackageBkg(TBPackageIndex* packageIndex)
+{
+    int l; // r10
+    if (packageIndex == NULL)
+        return 0;
+    return 1;
+}
 
 int bkReadClock(TBClock* clock)
 {
@@ -194,7 +679,7 @@ TBDebugStream* bkCreateDebugStream(TBDebugStream* stream, char* filename, unsign
     {
         stream = (TBDebugStream*)bkHeapAlloc(sizeof(TBDebugStream), (char*)UNIT_DATA(File, "File"), 0, 0x2006);
         if (stream == NULL)
-            return (TBDebugStream*)NULL;
+            return NULL;
         flags |= 1;
     }
 
@@ -211,7 +696,7 @@ TBDebugStream* bkCreateDebugStream(TBDebugStream* stream, char* filename, unsign
         if (!bkHostCreateFile(stream->logFile, &stream->fp))
         {
             bkPrintf("Unable to create: %s\n", stream->logFile);
-            return (TBDebugStream*)NULL;
+            return NULL;
         }
     }
     return stream;
@@ -493,4 +978,42 @@ EBLanguageID bkGetSystemLanguage()
         return BLANGUAGEID_NL;
     }
     return BLANGUAGEID_PO;
+}
+
+TBPackageIndex* bkOpenPackage(char* filename)
+{
+    return bOpenPackage(filename);
+}
+
+void bkClosePackage(TBPackageIndex* index)
+{
+    if (index == NULL)
+        return;
+
+    bkDeleteFilenameTable(index->id);
+
+    if (!index->id.loaded)
+    {
+        bkCloseFile(index->fp);
+        if (index->index != NULL)
+        {
+            bkHeapFree(index->index);
+            index->index = 0;
+        }
+
+        if (index->tags != NULL)
+        {
+            bkHeapFree(index->tags);
+            index->tags = 0;
+        }
+    }
+    else
+    {
+        bDeletePackageResources(index->id, ~0U);
+    }
+
+    if (!(index->flags & 1))
+    {
+        bkHeapFree(index);
+    }
 }

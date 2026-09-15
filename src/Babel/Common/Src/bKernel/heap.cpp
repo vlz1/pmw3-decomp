@@ -63,11 +63,11 @@ void bShutdownHeap()
                 name = "Default";
 
             buf2[0] = '\0';
-            if ((block->flags & 0x2000) != 0)
+            if ((block->flags & HEAPALLOC_FLAGS_MALLOC) != 0)
             {
                 strcpy(buf3, "Malloc");
             }
-            else if (block->flags & 0x1000)
+            else if (block->flags & HEAPALLOC_FLAGS_NEW)
             {
                 strcpy(buf3, "New");
             }
@@ -529,7 +529,7 @@ void* bkHeapRealloc(void* ptr, int newSize)
     if (ptr == NULL)
     {
         char* file = (char*)UNIT_DATA(File, "File");
-        return (void*)bkHeapAllocEx(newSize, file, 0, 0x2006, bGetCurrentGroup(), 0);
+        return (void*)bkHeapAllocEx(newSize, file, 0, HEAPALLOC_FLAGS_MALLOC | 6, bGetCurrentGroup(), 0);
     }
 
     if (newSize == 0)
@@ -580,7 +580,7 @@ void* bkHeapRealloc(void* ptr, int newSize)
             void* pvVar6 = (void *)bkHeapAllocEx(
                 adjSize, "b:/BlitzSDK/Babel/Common/Src/bKernel/heap.cpp",
                 1227,
-                block->size,
+                block->flags,
                 (u32)block->group,
                 0
             );

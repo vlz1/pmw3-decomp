@@ -6,6 +6,7 @@ extern unsigned int bCRCtable[256];
 
 u32 bkCRC32(const u8* data, int count, unsigned int crc);
 u32 bkStringCRC(const char* str, unsigned int crc);
+u32 bkStringLwrCRC(const char* str, unsigned int crc);
 
 static inline void bPopulateCRCTable()
 {
