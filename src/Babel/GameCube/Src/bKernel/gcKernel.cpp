@@ -363,15 +363,35 @@ int bLoadPackageResources(TBPackageIndex* package, unsigned int typeMask, int gr
     int searchOffs; // r10
 
     {
-        // Range: 0x80240D74 -> 0x80240D8C
         int strLoaded; // r3
     }
 
     {
-        // Range: 0x80240D98 -> 0x80240DAC
         int lipsyncsLoaded; // r3
     }
 
+}
+
+TBResourceInfo* bLoadResource(TBPackageIndex* index, char* filename, EBResourceType resType, int groupID)
+{
+    unsigned int crc; // r4
+    TBResourceInfo* res;
+}
+
+TBResourceInfo* bLoadResourceByCRC(TBPackageIndex* index, unsigned int crc, EBResourceType resType, int groupID)
+{
+    TBResourceInfo * res; // r31
+}
+
+TBResourceInfo* bkFindResourceByCRC(EBResourceType resType, unsigned int crc, TBPackageID packageId, unsigned int groupId, unsigned int flags)
+{
+    TBResourceInfo* res; // r10
+    int l; // r29
+    TBResourceInfo* prevRes[2];
+    int prevIdx;
+    int lang;
+    int langExtLen;
+    char languageExtension[16];
 }
 
 int bKernelInitBkgLoad()
@@ -404,9 +424,25 @@ volatile int bChannelBytesTransferred[3] = { };
 volatile int bChannelLastBytesTransferred[3] = { };
 TBDebugStream bDefaultDebugStream = { { }, 2 , 0 };
 
+inline int bReadClock(TBClock* clock)
+{
+    OSCalendarTime td;
+    OSTicksToCalendarTime(OSGetTime(), &td);
+
+    clock->second = td.sec;
+    clock->minute = td.min;
+    clock->hour = td.hour;
+    clock->day = td.mday;
+    clock->month = td.mon + 1;
+
+    s32 year = td.year;
+    clock->year = year - (year / 100) * 100;
+    return 1;
+}
+
 void bInitDebug()
 {
-    TBClock clock; // r1+0x8
+    TBClock clock;
     static char* months[12] = {
         "Jan",
         "Feb",
@@ -423,10 +459,38 @@ void bInitDebug()
     };
 
     bkCreateMutex(&bPrintfMutex);
-    if (bBkInitFlags & 8)
+    if ((bBkInitFlags & 8) != 0)
     {
-        bkCreateDebugStream(&bDefaultDebugStream, "debugLog.txt", 6);
+        bkCreateDebugStream(&bDefaultDebugStream, "", 0);
     }
+    else
+    {
+        if ((bBkInitFlags & 0x100) != 0)
+        {
+            bkCreateDebugStream(&bDefaultDebugStream, "" , (bBkInitFlags & 0x200) ? 0x16 : 6);
+        }
+        else
+        {
+            bkCreateDebugStream(&bDefaultDebugStream, "debugLog.txt", (bBkInitFlags & 0x200) ? 0x16 : 6);
+        }
+    }
+
+    bkSetDebugStream(NULL);
+    bkPrintf("\n-----------------------------------------\n");
+    bkPrintf("Babel Execution Log, (c) 2001 Blitz Games\n");
+    bkPrintf("  Babel 120.0.216 \n");
+    bkPrintf("-----------------------------------------\n");
+
+    bReadClock(&clock);
+
+    bkPrintf("Current time is %02d:%02d:%02d, %d %s 20%02d\n",
+        clock.hour,
+        clock.minute,
+        clock.second,
+        clock.day,
+        months[clock.month - 1],
+        clock.year
+    );
 }
 
 char bHomeDirectory[256] = { };
@@ -437,6 +501,19 @@ int bHandleDVDErrors(char* buf)
     int coverOpenedFlag; // r28
 }
 
+int bkReadFromFile(TBFileHandleType* fp, void* data, int noofBytes)
+{
+    unsigned int dataOver;
+    unsigned int noofBytesOver; // r28
+    int noofBytesRead; // r31
+    int totalBytesRead; // r24
+    int bufferSize; // r23
+    void * buffer; // r25
+    int readAligned; // r5
+    int read;
+    int vsyncs; // r29
+    int nextVsyncCount; // r31
+}
 
 u8* bSpecificHeapInit(void* basePtr, unsigned int size)
 {
@@ -606,6 +683,29 @@ char* bkDataToSafeString(unsigned char* data, int dataSize, char* buffer, int bu
     return buffer;
 }
 
+TBEventClient * bkTrapEventCallback(char* eventName, TBEventCallback callback, void* context)
+{
+    TBEventClient* client; // r8
+    TBEvent* event; // r31
+}
+
+TBEventClient * bkTrapEventQueue(char* eventName, int queueSize, unsigned int flags)
+{
+    TBEventClient* client; // r8
+    TBEvent* event; // r31
+}
+
+void bkDeleteEventClient(TBEventClient* client)
+{
+
+}
+
+void bkDeleteEventTraps(char* eventName)
+{
+    struct _TBEventClient * client; // r31
+    struct _TBEvent * event; // r30
+}
+
 #include "../../Common/Src/bKernel/crc32.cpp"
 
 void bkSetLanguage(EBLanguageID languageId)
@@ -618,6 +718,31 @@ int bPerfMonRunning = 0;
 u8* bPerfMonGraphDisplayList = 0;
 int bPerfMonGraphDisplayListSize = 0;
 u64 bTimerFrequency = 0;
+
+int bkPackageFileLength(TBPackageIndex* index, char* filename, int flags)
+{
+    char buf[256]; // r1+0x8
+}
+
+TBResourceInfo* bNullResourceLoadFunction(TBPackageIndex* index, unsigned int crc)
+{
+    return NULL;
+}
+
+void bNullResourceDeleteFunction(TBResourceInfo* resPtr)
+{
+
+}
+
+void bAddGlobalResourceToTree(TBResourceInfo* resPtr, TBResourceInfo* parent)
+{
+
+}
+
+void bAddGlobalResource(TBResourceInfo* resPtr, TBPackageIndex* pakSrc, int type, int groupID)
+{
+
+}
 
 void bDeletePackageResources(TBPackageID packageId, unsigned int typeMask, TBResourceInfo* res)
 {
@@ -659,18 +784,7 @@ int bkCancelLoadPackageBkg(TBPackageIndex* packageIndex)
 
 int bkReadClock(TBClock* clock)
 {
-    OSCalendarTime td;
-    long long ticks = OSGetTime();
-    OSTicksToCalendarTime(ticks, &td);
-
-    s32 year = td.year;
-    clock->second = td.sec;
-    clock->minute = td.min;
-    clock->hour = td.hour;
-    clock->day = td.mday;
-    clock->month = td.mon + 1;
-    clock->year = year - (year / 100) * 100;
-    return 1;
+    return bReadClock(clock);
 }
 
 TBDebugStream* bkCreateDebugStream(TBDebugStream* stream, char* filename, unsigned int flags)
