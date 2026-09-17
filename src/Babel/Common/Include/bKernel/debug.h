@@ -2,14 +2,19 @@
 
 #include <bKernel/verbosity.h>
 
-struct _TBDebugStream
+typedef struct _TBDebugStream
 {
     char logFile[256]; // offset 0x0, size 0x100
     unsigned int flags; // offset 0x100, size 0x4
     int fp; // offset 0x104, size 0x4
-};
+} TBDebugStream;
 
-typedef struct _TBDebugStream TBDebugStream;
+typedef struct _TBErrorMessage
+{
+    char error[512]; // offset 0x0, size 0x200
+    int flipCount; // offset 0x200, size 0x4
+    int module; // offset 0x204, size 0x4
+} TBErrorMessage;
 
 void bInitDebug();
 void bPrintError(char* format, ...);

@@ -1,5 +1,6 @@
 #include <dolphin/os.h>
 #include <bKernel/timer.h>
+#include <bKernel/GameCube/gcTimer.h>
 
 extern u64 bTimerFrequency;
 
@@ -32,14 +33,6 @@ float bkTimerToFPS(u64 timerValue)
 
 u64 bkTimerDelta(u64 startValue, u64 endValue)
 {
-    if (endValue < startValue)
-        return endValue - (startValue + 1);
-    return endValue - startValue;
-}
-
-inline u64 bkTimerDelta(u64 startValue)
-{
-    u64 endValue = OSGetTime();
     if (endValue < startValue)
         return endValue - (startValue + 1);
     return endValue - startValue;

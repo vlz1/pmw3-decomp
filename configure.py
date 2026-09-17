@@ -274,7 +274,8 @@ cflags_dolphin = [
 cflags_babel = [
     *cflags_base_prodg,
     "-I src/Babel/Common/Include",
-    "-I src/Babel/GameCube/Include"
+    "-I src/Babel/GameCube/Include",
+    "-Wa,-L"
 ]
 
 cflags_flare = [

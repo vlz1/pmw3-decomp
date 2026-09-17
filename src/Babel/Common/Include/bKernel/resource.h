@@ -124,6 +124,9 @@ typedef struct _TBFileTagInfo
     int noofTags; // offset 0x4, size 0x4
 } TBFileTagInfo;
 
+typedef TBResourceInfo*(*TBResourceLoadFunction)(TBPackageIndex*, unsigned int);
+typedef void (*TBResourceDeleteFunction)(TBResourceInfo*);
+
 TBPackageIndex* bkOpenPackage(char* filename);
 TBPackageIndex* bkLoadPackage(TBPackageIndex* parentIndex, char* filename, unsigned char* dataPtr);
 int bkFreePackageMemory(TBPackageIndex** index);

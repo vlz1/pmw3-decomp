@@ -14,11 +14,27 @@
 #include <bKernel/bkgLoad.h>
 #include <bKernel/language.h>
 #include <bKernel/resource.h>
-#include <bKernel/gcFileHandle.h>
+#include <bKernel/stringTable.h>
+#include <bKernel/GameCube/gcFileHandle.h>
+
+inline int bReadClock(TBClock* clock)
+{
+    OSCalendarTime td;
+    OSTicksToCalendarTime(OSGetTime(), &td);
+
+    clock->second = td.sec;
+    clock->minute = td.min;
+    clock->hour = td.hour;
+    clock->day = td.mday;
+    clock->month = td.mon + 1;
+
+    s32 year = td.year;
+    clock->year = year - (year / 100) * 100;
+    return 1;
+}
 
 volatile int bBytesTransferred = 0;
 volatile int bLastBytesTransferred = 0;
-
 
 unsigned int bCRCtable[256];
 char* bFileSearchPath[4];
@@ -36,14 +52,7 @@ static int sigDecoded = 0;
 EBLanguageID bLanguage = BLANGUAGEID_UK;
 int bFileSearchPaths = 0;
 int bFileSearchFlags = 0;
-int bSoundTimerInited = 0;
-float bSoundTimeMilliseconds = 0.0f;
-static int noofBkgLoadsInList = 0;
-static unsigned int bkgCommandUid = 0;
-static int quitThread = 0;
-static int bkgBusy = 0;
-static int bkgLoadWake = 0;
-static int desiredTransferRate = 104857600;
+struct _TBKernelModuleInfo* kernelModules = NULL;
 
 extern "C" void PCinit();
 extern "C" int PCcreat(char* filename, int arg1);
@@ -53,6 +62,7 @@ extern void bShutdownTimer();
 extern void bkPerfMonShutdown();
 extern void bReadPhysicalInputDevices(int wait);
 extern TBResourceInfo bGlobalResourceList;
+extern TBDebugStream bDefaultDebugStream;
 
 unsigned int bBkInitFlags;
 int bInsideEventCallback;
@@ -62,21 +72,6 @@ static volatile int workerThreadWaiting;
 static OSCond kickThread;
 static u64 dataTransferStart;
 static DVDDiskID* diskID;
-
-
-extern TBDebugStream bDefaultDebugStream;
-
-TBDebugStream* bCurrentDebugStream = &bDefaultDebugStream;
-int bPrintPause = 0;
-static volatile int bForeGroundLoaded = 0;
-static volatile int bForeGroundLoadedSize = 0;
-char bDiskErrorString[2] = { 0 };
-int bOSHeap = 0;
-char bHomeSuffix[8] = { 0 };
-int resetPending = 0;
-int bResetCheckDiskDoneByUser = 0;
-int bArgc = 0;
-char** bArgv = NULL;
 
 unsigned int resourceTypeTag[21] = {
     *(u32*)"TEXR",
@@ -340,6 +335,29 @@ void bDeleteGlobalResource(TBResourceInfo* resPtr)
 
 }
 
+TBErrorMessage bErrorMessages[6] = {
+    { { }, -1000, 0 },
+    { { }, -1000, 0 },
+    { { }, -1000, 0 },
+    { { }, -1000, 0 },
+    { { }, -1000, 0 },
+    { { }, -1000, 0 }
+};
+
+typedef struct TCodeSignature
+{
+    unsigned char magicMarker[64]; // offset 0x0, size 0x40
+    char identString[256]; // offset 0x40, size 0x100
+    int yearToExpire; // offset 0x140, size 0x4
+    int monthToExpire; // offset 0x144, size 0x4
+    int dayToExpire; // offset 0x148, size 0x4
+    unsigned int doubleCheck; // offset 0x14C, size 0x4
+} TCodeSignature;
+static volatile TCodeSignature codeSignature = { };
+static TBFilenameTableHeader filenameTable = { { }, &filenameTable, &filenameTable };
+TBResourceLoadFunction bResLoadFunction[21] = { 0 };
+TBResourceDeleteFunction bResDeleteFunction[21] = { 0 };
+
 static int bResLoadOrder[21] = {
     18, 19, 20, 17,
     0, 1, 2, 3,
@@ -349,7 +367,8 @@ static int bResLoadOrder[21] = {
     16
 };
 
-int bLoadPackageResources(TBPackageIndex* package, unsigned int typeMask, int groupId, unsigned int tagMatch) {
+int bLoadPackageResources(TBPackageIndex* package, unsigned int typeMask, int groupId, unsigned int tagMatch)
+{
     TBFileIndex* filePtr; // r9
     TBFileIndex* searchPtr;
     int l; // r31
@@ -387,17 +406,97 @@ TBResourceInfo* bkFindResourceByCRC(EBResourceType resType, unsigned int crc, TB
 {
     TBResourceInfo* res; // r10
     int l; // r29
-    TBResourceInfo* prevRes[2];
-    int prevIdx;
-    int lang;
-    int langExtLen;
-    char languageExtension[16];
+    static TBResourceInfo* prevRes[2] = { };
+    static int prevIdx = 0;
+    static int lang = -1;
+    static int langExtLen = 0;
+    static char languageExtension[16] = { 0x5F };
+}
+
+int bSoundTimerInited = 0;
+float bSoundTimeMilliseconds = 0.0f;
+static int noofBkgLoadsInList = 0;
+static unsigned int bkgCommandUid = 0;
+static int quitThread = 0;
+static int bkgBusy = 0;
+static int bkgLoadWake = 0;
+static int desiredTransferRate = 104857600;
+
+TBStringTable* bLoadStringTableByCRC(TBPackageIndex* pakIndex, unsigned int crc)
+{
+    TBStringTable* tablePtr; // r31
+    int l; // r30
+    int index; // r10
+    unsigned int u; // r10
+
+    // This inline is also in the DWARF for Bratz: Rock Angelz, so we probably have it too.
+    // inline struct _TBTexture * bkFindTextureByCRC(unsigned int crc, struct _TBPackageID pak, unsigned int group, unsigned int flags) {}
+}
+
+static unsigned short* bStringPrintFormat(unsigned short* target, int formatAt, int width, int precision, int pfound, unsigned char pad, unsigned short echar, unsigned char formatChar, va_list argp)
+{
+    // TODO: This function is absolutely massive. I'll copy over all the DWARF info when I'm ready to work on it.
+}
+
+int bkStringVSprintf16(unsigned short* target, const char* format, va_list argp)
+{
+    // Local variables
+    int width; // r5
+    int precision; // r29
+    int pfound; // r7
+    unsigned char pad;
+    unsigned short echar; // r30
+    unsigned short * start; // r27
+
+    /* anonymous block */ {
+        int formatAt; // r4
+    }
+}
+
+int bkStringSprintf16(unsigned short* target, const char* format, ...)
+{
+    va_list argp;
+    int ret;
+    va_start(argp, format);
+    ret = bkStringVSprintf16(target, format, argp);
+    va_end(argp);
+    return ret;
+}
+
+TBStringTableString* bkFindString(TBStringTable* stringTable, char* identifier, int offset)
+{
+    unsigned int index; // r11
+    unsigned int crc; // r7
+}
+
+int bkStringNPrintf(char* target, unsigned int maxLen, const char* format, ...)
+{
+    va_list argp;
+    int ret;
+    va_start(argp, format);
+    ret = vsprintf(target, format, argp);
+    va_end(argp);
+    return ret;
+}
+
+void bkUpdate(int modules)
+{
+    int reenablePooling; // r28
+
+    /* anonymous block */ {
+        unsigned long long curTime; // r30
+    }
 }
 
 int bKernelInitBkgLoad()
 {
     int loop;
     int priority;
+}
+
+static void bFixupResource(TBBkgLoadCmd* cmd)
+{
+    char* cp; // r3
 }
 
 char* bLanguageCode[18] = {
@@ -424,20 +523,68 @@ volatile int bChannelBytesTransferred[3] = { };
 volatile int bChannelLastBytesTransferred[3] = { };
 TBDebugStream bDefaultDebugStream = { { }, 2 , 0 };
 
-inline int bReadClock(TBClock* clock)
+
+
+static unsigned char* LoadSingleFileBkg(char* filename, unsigned char* dataPtr, int* retSize, char* eventName, int resType, unsigned int crc)
 {
-    OSCalendarTime td;
-    OSTicksToCalendarTime(OSGetTime(), &td);
+    struct _TBFileHandleType * fp; // r1+0x118
+    int len; // r31
+    char buf[256]; // r1+0x18
+    unsigned char * oldDataPtr; // r25
+}
 
-    clock->second = td.sec;
-    clock->minute = td.min;
-    clock->hour = td.hour;
-    clock->day = td.mday;
-    clock->month = td.mon + 1;
+TBPackageIndex* bkLoadPackageBkg(TBPackageIndex* parentIndex, char* filename, char* eventName, int* retSize, unsigned char* dataPtr)
+{
+    unsigned char* data; // r22
+    char buf[256]; // r1+0x18
+    TBFileIndex* filePtr; // r29
+    int isStatic; // r23
+    unsigned int crc; // r25
+    char pakFilename[256]; // r1+0x118
+    char pakInPakFilename[256]; // r1+0x218
+}
 
-    s32 year = td.year;
-    clock->year = year - (year / 100) * 100;
-    return 1;
+static int bkgOpenFile(TBkgSchedulerChannel* channel)
+{
+    int size; // r3
+}
+
+static void KickScheduler(unsigned long context)
+{
+    TBkgSchedulerChannel * channel; // r31
+    int c; // r29
+    int channelID; // r30
+    static int startChannel = -1;
+}
+
+TBDebugStream* bCurrentDebugStream = &bDefaultDebugStream;
+int bPrintPause = 0;
+static volatile int bForeGroundLoaded = 0;
+static volatile int bForeGroundLoadedSize = 0;
+char bDiskErrorString[2] = { 0 };
+int bOSHeap = 0;
+char bHomeSuffix[8] = { 0 };
+int resetPending = 0;
+int bResetCheckDiskDoneByUser = 0;
+int bArgc = 0;
+char** bArgv = NULL;
+
+static void BkgIOCompletion(long bytesTransferred, DVDFileInfo* fileInfo)
+{
+    unsigned long long ticksPerKb;
+    unsigned long long desiredTime; // r27
+    unsigned long long actualTime; // r3
+    unsigned long long delay; // r9
+    int sleepTime;
+    int rate;
+    TBkgSchedulerChannel* channel; // r31
+}
+
+static void BackgroundLoadFreeRequest(TBkgSchedulerChannel* channel /* r29 */)
+{
+    TBBkgLoadCmd* cmd; // r31
+    int l; // r30
+    unsigned int uid; // r11
 }
 
 void bInitDebug()
@@ -494,6 +641,31 @@ void bInitDebug()
 }
 
 char bHomeDirectory[256] = { };
+
+void bPrintError(char* format, ...)
+{
+    va_list argp; // r1+0x70
+    char buf[512]; // r1+0x80
+}
+
+void bkPrintf(char* format, ...)
+{
+    va_list argp; // r1+0x70
+}
+
+void bkVPrintf(char* format, va_list argp) {
+    long long ticks;
+    OSCalendarTime td; // r1+0x8
+
+    /* anonymous block */ {
+        int len; // r5
+    }
+
+    /* anonymous block */ {
+        unsigned long long start; // r28
+        unsigned long long pause; // r30
+    }
+}
 
 int bHandleDVDErrors(char* buf)
 {
@@ -614,7 +786,7 @@ int bResetCheck(int reset)
 
 int bkFreePackageMemory(TBPackageIndex** index)
 {
-
+    
 }
 
 void bkSetVerboseLevel(enum EBVerboseLevel level, unsigned int module, unsigned int flags)
@@ -772,6 +944,120 @@ void bDeleteAllResources(TBResourceInfo* res)
 void bDeleteResource(void* resPtr)
 {
     TBResourceInfo* delRes;
+}
+
+unsigned int bkFixStringTableCRC(unsigned int crc)
+{
+    char str[5]; // r1+0x8
+}
+
+void bDeleteStringTable(TBStringTable* tablePtr)
+{
+
+}
+
+char* bkString16to8(char* dest, const unsigned short* src)
+{
+    char* dp; // r9
+}
+
+unsigned short* bkString8to16(unsigned short* dest, const char* src)
+{
+    unsigned short* dp; // r9
+}
+
+int bkStringLength16(const unsigned short* str)
+{
+    const unsigned short * eos; // r3
+}
+
+unsigned short* bkStringCopy16(unsigned short* dst, const unsigned short* src)
+{
+    unsigned short* cp; // r11
+}
+
+int bkStringCompare16(const unsigned short* src, const unsigned short* dst, int length)
+{
+    int c; // r11
+    int ret; // r0
+}
+
+unsigned short* bkStringFindLetter16(const unsigned short* src, unsigned short letter)
+{
+    const unsigned short* s; // r3
+}
+
+TBStringTableString* bkFindStringByCRC(TBStringTable* stringTable, unsigned int crc, int offset)
+{
+    unsigned int index; // r11
+}
+
+int bkStopStopwatchEnd(struct _TBStopwatch* stop)
+{
+
+}
+
+float bkTimerToMilliseconds(unsigned long long value)
+{
+
+}
+
+unsigned long long bkMillisecondsToTimer(float value)
+{
+
+}
+
+int bkInit(void* base, unsigned int size, unsigned int flags)
+{
+
+}
+
+void bkShutdown()
+{
+
+}
+
+int bKernelShutdownBkgLoad()
+{
+
+}
+
+void bUpdateBkgLoad() {
+    TBkgSchedulerChannel* channel; // r3
+    int l; // r31
+}
+
+int bQueueBackgroundLoad(EBBkgChannel channel, char* dest, TBFileHandleType* fp, char* onDiskFilename, char* filename, unsigned int crc, int offset, int noofBytes, int flags, char* event, int resType) 
+{
+    TBBkgLoadCmd * cmd; // r31
+}
+
+int bIsBkgChannelBusy(EBBkgChannel channel)
+{
+    
+}
+
+static int bScheduleLoad(TBBkgLoadCmd* cmd, void (*callback)(void*), void* context)
+{
+    TBkgSchedulerChannel* channel; // r31
+}
+
+static void* bKernelWorkerThread(void* context)
+{
+
+}
+
+static void bEndLoad(TBkgSchedulerChannel* channel)
+{
+
+}
+
+static void BackgroundLoadComplete(void* context)
+{
+    struct _TBBkgLoadCmd * cmd; // r9
+    struct _TBkgSchedulerChannel * channel; // r9
+    int l; // r11
+    unsigned int uid; // r3
 }
 
 int bkCancelLoadPackageBkg(TBPackageIndex* packageIndex)
