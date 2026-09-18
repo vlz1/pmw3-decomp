@@ -112,8 +112,13 @@ typedef void *__gnuc_va_list;
   (((sizeof (TYPE) + sizeof (int) - 1) / sizeof (int)) * sizeof (int))
 #endif
 
+#ifdef __clangd__
+// Stop clangd from complaining about __builtin_next_arg
+#define va_start(AP, LASTARG)
+#else
 #define va_start(AP, LASTARG) 						\
  (AP = ((__gnuc_va_list) __builtin_next_arg (LASTARG)))
+#endif
 
 #undef va_end
 void va_end (__gnuc_va_list);		/* Defined in libgcc.a */

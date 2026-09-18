@@ -21,7 +21,6 @@ u32 bkStringCRC(const char* str, unsigned int crc)
     return crc;
 }
 
-
 u32 bkStringLwrCRC(const char* str, unsigned int crc)
 {
     while (*str != '\0')

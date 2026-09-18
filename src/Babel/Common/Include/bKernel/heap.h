@@ -82,10 +82,13 @@ void* bkHeapAllocEx(unsigned int size, char* file, int line, unsigned short flag
 void* bkHeapCalloc(unsigned int size, int value, char* file, int line, unsigned short flags);
 void* bkHeapCallocEx(unsigned int size, int value, char* file, int line, unsigned short flags, unsigned int group, int alignment);
 void bkHeapFree(void* ptr);
+int bkHeapGetBlockSize(void* ptr);
 
 int bkHeapFreeSpace(int* largestFreeBlock);
 void bkHeapActivatePool(struct _TBHeapPool* pool);
 void bkHeapDeactivatePool(struct _TBHeapPool* pool, int finalise);
+
+char* bGetCurrentGroup();
 
 #define HEAPALLOC_FLAGS_MALLOC  0x2000
 #define HEAPALLOC_FLAGS_NEW     0x1000

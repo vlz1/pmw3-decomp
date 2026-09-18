@@ -24,6 +24,7 @@ struct _TBFileHandleType;
 typedef struct _TBFileHandleType TBFileHandleType;
 
 int bkOpenFileReadOnly(char* filename, TBFileHandleType** fpPtr);
+int bkOpenFileReadOnlyWithSearch(char* filename, TBFileHandleType** fp, char* fullpath, int maxlen, int flags);
 void bkSeekFile(TBFileHandleType* fp, int position, EBHostSeekMode mode);
 void bkCloseFile(TBFileHandleType* fp);
 int bkHostCreateFile(char* filename, int* fpPtr);

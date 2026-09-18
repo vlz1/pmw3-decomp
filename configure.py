@@ -275,7 +275,7 @@ cflags_babel = [
     *cflags_base_prodg,
     "-I src/Babel/Common/Include",
     "-I src/Babel/GameCube/Include",
-    "-Wa,-L"
+    "-finline-functions"
 ]
 
 cflags_flare = [

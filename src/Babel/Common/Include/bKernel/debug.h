@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdarg.h>
 #include <bKernel/verbosity.h>
 
 typedef struct _TBDebugStream
@@ -19,5 +20,6 @@ typedef struct _TBErrorMessage
 void bInitDebug();
 void bPrintError(char* format, ...);
 void bkPrintf(char* format, ...);
+void bkVPrintf(char* format, va_list argp);
 TBDebugStream* bkCreateDebugStream(TBDebugStream* stream, char* filename, unsigned int flags);
 void bkSetDebugStream(TBDebugStream* stream);
