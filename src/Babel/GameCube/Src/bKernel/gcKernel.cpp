@@ -754,7 +754,7 @@ static inline unsigned char* EnsureAllocBkg(unsigned char* dataPtr, int size)
     }
     else
     {
-        char* group = bGetCurrentGroup();
+        char* group = (char*)bGetCurrentGroup();
         if ((u32)group == 0xDEFA)
             group = "Package";
 

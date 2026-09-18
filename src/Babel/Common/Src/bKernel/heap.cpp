@@ -11,8 +11,6 @@ extern u8* bSpecificHeapInit(void* basePtr, unsigned int size);
 extern unsigned int bSpecificHeapDefaultSize(unsigned int size);
 extern void bSpecificHeapShutdown(u8* base);
 
-u32 bGetCurrentGroup();
-
 TBHeap bHeap = { };
 char* moduleNames[15] = {
     "External",
