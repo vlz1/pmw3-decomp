@@ -25,6 +25,7 @@ from tools.project import (
     generate_build,
     is_windows,
 )
+from tools.patch_dol_header import patch_dol_header
 
 # Game versions
 DEFAULT_VERSION = 0
@@ -538,6 +539,9 @@ config.progress_report_args = [
     # Default is "functionRelocDiffs=none", which is most lenient
     # "--config functionRelocDiffs=data_value",
 ]
+
+if not patch_dol_header("orig/GP8EAF/sys/main.dol"):
+    sys.exit("DOL patching failed")
 
 if args.mode == "configure":
     # Write build.ninja and objdiff.json
