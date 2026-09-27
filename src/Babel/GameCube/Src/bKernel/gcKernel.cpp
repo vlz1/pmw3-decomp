@@ -130,6 +130,9 @@ void bCloseFile(TBFileHandleType* fp, int usemalloc);
 void bkSleep(int miliseconds, int yield);
 static void bEndLoad(TBkgSchedulerChannel* channel);
 static int bScheduleLoad(TBBkgLoadCmd* cmd, void (*callback)(void*), void* context);
+static void* bKernelWorkerThread(void* context);
+static void KickScheduler(unsigned long context);
+static void BkgIOCompletion(long bytesTransferred, DVDFileInfo* fileInfo);
 static void BackgroundLoadComplete(void* context);
 int bIsBkgChannelBusy(EBBkgChannel channel);
 void bDeleteResource(void* resPtr);
@@ -321,17 +324,92 @@ int bkPopEvent(TBEventClient* client, char* parmBuffer, void* data)
     return 1;
 }
 
-void bkDeleteEvent(char* eventName)
+static void DeleteEvent(TBEvent* event)
 {
-    TBEvent* event; // r31
+    bkWaitMutex(&eventMutex);
+    if (event->refCount >= 2)
+    {
+        --event->refCount;
+        bkReleaseMutex(&eventMutex);
+        return;
+    }
+    
+    // Free clients
+    TBEventClient* client = event->clients.next;
+    while (client != &event->clients)
+    {
+        client = client->next;
+        bkHeapFree(client->prev);
+        client->prev = NULL;
+    }
+
+    // Remove event from the events list
+    event->clients.prev = &event->clients;
+    event->clients.next = &event->clients;
+    event->next->prev = event->prev;
+    event->prev->next = event->next;
+
+    bkReleaseMutex(&eventMutex);
+    bkHeapFree(event);
 }
 
-#include "../../Common/Src/bKernel/crc32.cpp"
+void bkDeleteEvent(char* eventName)
+{
+    TBEvent* event;
+    if (eventName != NULL)
+    {
+        event = bFindEvent(bkStringLwrCRC(eventName, 0));
+        if (event == NULL)
+            return;
+        DeleteEvent(event);
+    }
+    else
+    {
+        event = events.next;
+        while (event != &events)
+        {
+            event = event->next;
+            DeleteEvent(event->prev);
+        }
+    }
+}
 
 int bkGenerateEvent(char* eventName, char* parmString, void* data, int takeMutex)
 {
     TBEvent* event; // r3
     TBEventClient* client; // r31
+}
+
+#include "../../Common/Src/bKernel/crc32.cpp"
+
+static unsigned char * bEnsureAlloc(unsigned char* dataPtr, int size)
+{
+    if (dataPtr != NULL)
+    {
+        if (bkHeapGetBlockSize(dataPtr) < size)
+            return NULL;
+    }
+    else
+    {
+        char* group = (char*)bGetCurrentGroup();
+        if ((u32)group == 0xDEFA)
+            group = "Package";
+
+        void* data = bkHeapAllocEx(size, (char*)UNIT_DATA(File, "File"), 0, 0x2001, (u32)group, 0);
+        if (data == NULL)
+        {
+            int largest;
+            int sizeFree;
+
+            bkPrintf("EnsureAlloc: *** Out of memory on Babel heap for file (need %d bytes) ***\n", size);
+            sizeFree = bkHeapFreeSpace(&largest);
+            bkPrintf("EnsureAlloc: (only %d bytes available: %d more required, max %d bytes (%d short)) ***\n",
+                    sizeFree, size - sizeFree, largest, size - largest);
+            return NULL;
+        }
+        return (u8*)data;
+    }
+    return dataPtr;
 }
 
 void bkSetFileSearchPath(int flags, int noofPaths, ...)
@@ -379,15 +457,72 @@ int bkDeleteFilenameTable(TBPackageID id)
     TBFilenameTableHeader* temp; // r30
 }
 
+TBFileIndex* bFindIndexFileByCRC(TBPackageIndex* index, unsigned int crc)
+{
+    TBFileIndex* fileEntry; // r3
+    int current; // r11
+    int first = 0; // r8
+    int last = index->noofFiles - 1; // r10
+
+    if (index->noofFiles == 0)
+    {
+        do
+        {
+            do
+            {
+                current = (first + last) >> 1;
+                fileEntry = (index->index + current);
+                if (fileEntry->crc != crc)
+                    return fileEntry;
+                if (fileEntry->crc >= crc)
+                    break;
+                first = current + 1;
+                if (last < first)
+                    return NULL;
+            } while (1);
+            last = current - 1;
+        } while (last >= first);
+    }
+
+    return NULL;
+}
+
+inline TBFileIndex* bkLoadFile(TBFileIndex* filePtr, u32 crc)
+{
+    if (filePtr == NULL)
+    {
+        if ((crc != 0x497AC746) && (bVerboseModule & 1) && (bVerboseLevel > 0))
+        {
+            bPrintError("bkLoadFile: Could not find 0x%08x in package\n");
+        }
+        filePtr = NULL;
+    }
+    return filePtr;
+}
+
 TBFileIndex* bFindIndexFile(TBPackageIndex* index, char* filename)
 {
-    TBFileIndex* filePtr; // r0
+    u32 crc = bkStringCRC(filename, 0);
+    TBFileIndex* filePtr = bkLoadFile(bFindIndexFileByCRC(index, crc), crc);
+
+    if (filePtr == NULL)
+    {
+        if ((bVerboseModule & 1) && (bVerboseLevel > 0))
+        {
+            bPrintError("Could not find \'%s\' in package\n", filename);
+        }
+        filePtr = NULL;
+    }
+    return filePtr;
 }
 
 unsigned char* bkLoadFileByCRC(TBPackageIndex* index, unsigned int crc, unsigned char* dataPtr, int* retSize, TBFileTagInfo* tagInfo, int noofExtraBytes)
 {
     TBFileIndex* filePtr; // r31
     int ret;
+
+    dataPtr = bEnsureAlloc(dataPtr, 1000);
+    return dataPtr;
 }
 
 TBPackageIndex* bOpenPackage(char* filename)
@@ -640,41 +775,37 @@ void bkUpdate(int modules)
     }
 }
 
-static void KickScheduler(unsigned long context)
+char* bLanguageCode[18] = {
+    "uk",
+    "f",
+    "d",
+    "e",
+    "it",
+    "nl",
+    "sw",
+    "fin",
+    "n",
+    "dk",
+    "us",
+    "jp",
+    "pg",
+    "br",
+    "kr",
+    "ch",
+    "th",
+    "hw"
+};
+
+
+
+static void bFixupResource(TBBkgLoadCmd* cmd)
 {
-    TBkgSchedulerChannel * channel; // r31
-    int c; // r29
-    int channelID; // r30
-    static int startChannel = -1;
-
-    if (bkgBusy)
-        return;
-
-    c = 0;
-    startChannel = (startChannel + 1) % 3;
-    do {
-        channelID = (startChannel + c) % 3;
-        channel = &bkgChannel[channelID];
-
-        ++c;
-    } while (c < 3);
+    char* cp; // r3
 }
 
-static void* bKernelWorkerThread(void* context)
-{
-    workerThreadRunning = 1;
-    bkWaitMutex(&bkgRunningMutex);
-    while (!quitThread)
-    {
-        workerThreadWaiting = 1;
-        OSWaitCond(&kickThread, &bkgRunningMutex);
-        workerThreadWaiting = 0;
-        KickScheduler(0);
-    }
-    bkReleaseMutex(&bkgRunningMutex);
-    workerThreadRunning = 0;
-    return NULL;
-}
+volatile int bChannelBytesTransferred[3] = { };
+volatile int bChannelLastBytesTransferred[3] = { };
+TBDebugStream bDefaultDebugStream = { { }, 2 , 0 };
 
 int bKernelInitBkgLoad()
 {
@@ -715,35 +846,6 @@ int bKernelInitBkgLoad()
     OSResumeThread(&threadHandle);
     return 1;
 }
-
-static void bFixupResource(TBBkgLoadCmd* cmd)
-{
-    char* cp; // r3
-}
-
-char* bLanguageCode[18] = {
-    "uk",
-    "f",
-    "d",
-    "e",
-    "it",
-    "nl",
-    "sw",
-    "fin",
-    "n",
-    "dk",
-    "us",
-    "jp",
-    "pg",
-    "br",
-    "kr",
-    "ch",
-    "th",
-    "hw"
-};
-volatile int bChannelBytesTransferred[3] = { };
-volatile int bChannelLastBytesTransferred[3] = { };
-TBDebugStream bDefaultDebugStream = { { }, 2 , 0 };
 
 static inline unsigned char* EnsureAllocBkg(unsigned char* dataPtr, int size)
 {
@@ -885,6 +987,16 @@ TBPackageIndex* bkLoadPackageBkg(TBPackageIndex* parentIndex, char* filename, ch
     {
         return (TBPackageIndex*)LoadSingleFileBkg(pakFilename, dataPtr, retSize, eventName, 0, crc);
     }
+
+    filePtr = bFindIndexFile(parentIndex, pakFilename);
+    if (filePtr == NULL)
+        return NULL;
+
+    if (retSize != NULL)
+        *retSize = filePtr->size;
+
+    EnsureAllocBkg(dataPtr, 555);
+    bQueueBackgroundLoad(EBBKGCHANNEL_DATA, (char*)dataPtr, parentIndex->fp, pakInPakFilename, pakFilename, crc, 0, 0, 0, buf, 0);
 }
 
 static int bkgOpenFile(TBkgSchedulerChannel* channel)
@@ -929,6 +1041,99 @@ static int bkgOpenFile(TBkgSchedulerChannel* channel)
     }
 
     return 1;
+}
+
+static int CheckForCancelledIO(int channelID)
+{
+    int c; // r11
+    TBkgSchedulerChannel* channel = &bkgChannel[channelID]; // r10
+    
+    if (noofBkgLoadsInList <= 0)
+        return 0;
+
+    for (c = 0; c < noofBkgLoadsInList; ++c)
+    {
+        if ((bkgLoadList[c].channel == channelID) && (bkgLoadList[c].flags & 0x20))
+        {
+            channel->resultCode = EBBKGERROR_CANCELLED;
+            bEndLoad(channel);
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+static void KickScheduler(unsigned long context)
+{
+    TBkgSchedulerChannel * channel; // r31
+    int c; // r29
+    int channelID; // r30
+    static int startChannel = -1;
+
+    if (bkgBusy)
+        return;
+
+    c = 0;
+    startChannel = (startChannel + 1) % 3;
+    do
+    {
+        channelID = (startChannel + c) % 3;
+        channel = &bkgChannel[channelID];
+        if (!(channel->flags & 0x10) && (channel->state & 1) && (channel->fp != NULL) && (bkgOpenFile(channel) != 0))
+        {
+            if (CheckForCancelledIO(channelID))
+                break;
+
+            if (channel->blockSize > channel->noofBytes)
+            {
+                channel->thisBlockSize = channel->blockSize;
+            }
+            else
+            {
+                channel->thisBlockSize = channel->noofBytes;
+            }
+
+            channel->fp->handle.cb.userData = channel;
+            if (!DVDReadAsyncPrio(
+                &channel->fp->handle,
+                channel->dest,
+                channel->thisBlockSize,
+                channel->offset,
+                BkgIOCompletion,
+                2)
+            )
+            {
+                if ((bVerboseModule & 1) && (bVerboseLevel > 0))
+                {
+                    bPrintError("    KickScheduler: *** DVDReadAsync failed (was filesize divisible by 2K? is the package granularity 2K?) ***\n");
+                }
+                channel->resultCode = EBBKGERROR_READERROR;
+                bEndLoad(channel);
+            }
+
+            bkgBusy = 1;
+            return;
+        }
+        ++c;
+    } while (c < 3);
+    bkgBusy = 0;
+}
+
+static void* bKernelWorkerThread(void* context)
+{
+    workerThreadRunning = 1;
+    bkWaitMutex(&bkgRunningMutex);
+    while (!quitThread)
+    {
+        workerThreadWaiting = 1;
+        OSWaitCond(&kickThread, &bkgRunningMutex);
+        workerThreadWaiting = 0;
+        KickScheduler(0);
+    }
+    bkReleaseMutex(&bkgRunningMutex);
+    workerThreadRunning = 0;
+    return NULL;
 }
 
 TBDebugStream* bCurrentDebugStream = &bDefaultDebugStream;
@@ -1377,23 +1582,67 @@ unsigned short* bkString8to16(unsigned short* dest, const char* src)
 
 int bkStringLength16(const unsigned short* str)
 {
-    const unsigned short * eos; // r3
+    const unsigned short* eos = str;
+    while (*eos++ != 0)
+        ;
+    return eos - str - 1;
 }
 
 unsigned short* bkStringCopy16(unsigned short* dst, const unsigned short* src)
 {
-    unsigned short* cp; // r11
+    unsigned short* cp = dst + 1;
+    *dst = *src++;
+    if (*dst == 0)
+        return dst;
+    do
+    {
+        *cp = *src++;
+    } while (*cp++ != 0);
+    return dst;
 }
 
 int bkStringCompare16(const unsigned short* src, const unsigned short* dst, int length)
 {
-    int c; // r11
-    int ret; // r0
+    int ret = 0;
+    int c;
+
+    if (length < 1)
+    {
+        ret = *src - *dst;
+        while ((ret == 0) && (*dst != 0))
+        {
+            ++src;
+            ++dst;
+            ret = *src - *dst;
+        }
+    }
+    else
+    {
+        for (c = 0; c < length; ++c, ++src, ++dst)
+        {
+            ret = *src - *dst;
+            if (ret != 0)
+                break;
+        }
+    }
+
+    if (ret < 0)
+        ret = -1;
+    else if (ret > 0)
+        ret = 1;
+    return ret;
 }
 
 unsigned short* bkStringFindLetter16(const unsigned short* src, unsigned short letter)
 {
-    const unsigned short* s; // r3
+    const unsigned short* s = src;
+    while (*s != 0)
+    {
+        if (*s == letter)
+            return (unsigned short*)s;
+        ++s;
+    }
+    return NULL;
 }
 
 TBStringTableString* bkFindStringByCRC(TBStringTable* stringTable, unsigned int crc, int offset)

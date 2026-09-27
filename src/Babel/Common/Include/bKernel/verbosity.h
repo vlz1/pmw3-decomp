@@ -12,6 +12,7 @@ enum EBVerboseLevel
     BDVERBOSE_ALL = 7,
 };
 
+
 extern enum EBVerboseLevel bVerboseLevel;
 extern unsigned int bVerboseModule;
 extern unsigned int bVerboseFlags;

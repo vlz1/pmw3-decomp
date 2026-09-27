@@ -52,7 +52,7 @@ struct _TBEvent
     unsigned int crc; // offset 0x20, size 0x4
     TBEvent* next; // offset 0x24, size 0x4
     TBEvent* prev; // offset 0x28, size 0x4
-    struct _TBEventClient clients; // offset 0x2C, size 0x20
+    TBEventClient clients; // offset 0x2C, size 0x20
     int noofQueues; // offset 0x4C, size 0x4
     int refCount; // offset 0x50, size 0x4
 };
