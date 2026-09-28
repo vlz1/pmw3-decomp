@@ -111,8 +111,8 @@ typedef struct _TBResourceInfo
 typedef struct _TBFilenameTableHeader
 {
     TBPackageID package; // offset 0x0, size 0x4
-    struct _TBFilenameTableHeader * prev; // offset 0x4, size 0x4
-    struct _TBFilenameTableHeader * next; // offset 0x8, size 0x4
+    struct _TBFilenameTableHeader* prev; // offset 0x4, size 0x4
+    struct _TBFilenameTableHeader* next; // offset 0x8, size 0x4
     int refCount; // offset 0xC, size 0x4
     unsigned int noofFiles; // offset 0x10, size 0x4
     char filename[256]; // offset 0x14, size 0x100
@@ -128,6 +128,5 @@ typedef TBResourceInfo*(*TBResourceLoadFunction)(TBPackageIndex*, unsigned int);
 typedef void (*TBResourceDeleteFunction)(TBResourceInfo*);
 
 TBPackageIndex* bkOpenPackage(char* filename);
-TBPackageIndex* bkLoadPackage(TBPackageIndex* parentIndex, char* filename, unsigned char* dataPtr);
 int bkFreePackageMemory(TBPackageIndex** index);
 void bkClosePackage(TBPackageIndex* index);

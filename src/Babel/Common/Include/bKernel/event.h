@@ -21,8 +21,8 @@ struct _TBEventEntry
 
 struct _TBEventClientCallback
 {
-    void (* callback)(char *, char *, void *, void *); // offset 0x0, size 0x4
-    void * callbackContext; // offset 0x4, size 0x4
+    void (*callback)(char*, char*, void*, void*); // offset 0x0, size 0x4
+    void* callbackContext; // offset 0x4, size 0x4
 };
 
 struct _TBEventClientQueue
