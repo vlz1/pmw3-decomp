@@ -1799,7 +1799,9 @@ void bDeleteResource(void* resPtr)
 
 unsigned int bkFixStringTableCRC(unsigned int crc)
 {
-    char str[5]; // r1+0x8
+    char str[8];
+    sprintf(str, ".%s", bLanguageCode[bLanguage]);
+    return bkCRC32((const u8*)str, strlen(str), crc);
 }
 
 void bDeleteStringTable(TBStringTable* tablePtr)

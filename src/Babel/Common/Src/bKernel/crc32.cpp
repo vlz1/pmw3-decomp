@@ -26,9 +26,8 @@ u32 bkStringLwrCRC(const char* str, unsigned int crc)
     while (*str != '\0')
     {
         s32 c = *str++;
-        if ((c - 0x41) < 0x1AU) {
+        if ((c - 0x41) < 0x1AU)
             c += 0x20;
-        }
         crc = (crc << 8) ^ bCRCtable[((crc >> 24) ^ c) & 0xFF];
     }
     return crc;
