@@ -27,7 +27,7 @@ void bkPushVerboseLevel(enum EBVerboseLevel level, unsigned int modules, unsigne
     bVerboseModuleStack[bVerboseStackSize] = bVerboseModule;
     bVerboseLevelStack[bVerboseStackSize] = bVerboseLevel;
     bVerboseFlagsStack[bVerboseStackSize] = bVerboseFlags;
-    
+
     if (level < 2)
     {
         bkPrintf("*WARNING* bkSetVerboseLevel: Setting level < BDVERBOSE_ASSERTS could cause problems\n");
@@ -45,33 +45,4 @@ void bkPopVerboseLevel()
     bVerboseModule = bVerboseModuleStack[bVerboseStackSize];
     bVerboseLevel = bVerboseLevelStack[bVerboseStackSize];
     bVerboseFlags = bVerboseFlagsStack[bVerboseStackSize];
-}
-
-char* bkDataToSafeString(unsigned char* data, int dataSize, char* buffer, int bufferSize)
-{
-    int length;
-    char* bufPtr = buffer;
-
-    if (data == NULL)
-    {
-        *buffer = '\0';
-        return buffer;
-    }
-
-    length = bufferSize - 1;
-    if (length > dataSize)
-        length = dataSize;
-
-    while (length-- > 0)
-    {
-        if (*data >= ' ')
-            *bufPtr++ = *data;
-        else
-            *bufPtr++ = '.';
-
-        ++data;
-    }
-
-    *bufPtr = '\0';
-    return buffer;
 }

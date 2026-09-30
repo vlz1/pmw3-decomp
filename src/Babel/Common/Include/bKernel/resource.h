@@ -90,7 +90,6 @@ typedef struct _TBPackageIndex
 
 typedef struct _TBResourceInfo
 {
-    // Members
     union
     {
         TBPackageID packageId; // offset 0x0, size 0x4
@@ -142,3 +141,4 @@ typedef void (*TBResourceDeleteFunction)(TBResourceInfo*);
 TBPackageIndex* bkOpenPackage(char* filename);
 int bkFreePackageMemory(TBPackageIndex** index);
 void bkClosePackage(TBPackageIndex* index);
+TBFileIndex* bFindIndexFile(TBPackageIndex* index, char* filename);

@@ -60,3 +60,6 @@ typedef struct _TBkgSchedulerChannel {
     unsigned int uid; // offset 0x138, size 0x4
     EBBkgError resultCode; // offset 0x13C, size 0x4
 } TBkgSchedulerChannel;
+
+int bKernelInitBkgLoad();
+int bKernelShutdownBkgLoad();
