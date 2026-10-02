@@ -1,6 +1,6 @@
 #include <bKernel/crc32.h>
 
-u32 bkCRC32(const u8* data, int count, unsigned int crc)
+unsigned int bkCRC32(const u8* data, int count, unsigned int crc)
 {
     while (count != 0)
     {
@@ -11,7 +11,7 @@ u32 bkCRC32(const u8* data, int count, unsigned int crc)
     return crc;
 }
 
-u32 bkStringCRC(const char* str, unsigned int crc)
+unsigned int bkStringCRC(const char* str, unsigned int crc)
 {
     while (*str != '\0')
     {
@@ -21,7 +21,7 @@ u32 bkStringCRC(const char* str, unsigned int crc)
     return crc;
 }
 
-u32 bkStringLwrCRC(const char* str, unsigned int crc)
+unsigned int bkStringLwrCRC(const char* str, unsigned int crc)
 {
     while (*str != '\0')
     {

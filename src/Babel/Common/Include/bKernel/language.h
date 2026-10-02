@@ -28,5 +28,7 @@ typedef enum EBLanguageID
     BLANGUAGEID_UNKNOWN = 23,
 } EBLanguageID;
 
+extern char* bLanguageCode[18];
+
 EBLanguageID bkGetSystemLanguage();
 void bkSetLanguage(EBLanguageID languageId);

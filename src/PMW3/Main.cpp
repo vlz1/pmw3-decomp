@@ -1,5 +1,6 @@
 #include <bKernel/main.h>
 #include <bKernel/heap.h>
+#include <bKernel/commandLine.h>
 
 extern void fMain(void* context);
 extern void* (*_register_malloc)(unsigned int);

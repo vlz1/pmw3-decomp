@@ -1,7 +1,7 @@
 #pragma once
 
-#include <InlineUnitData.h>
 #include <bKernel/debug.h>
+#include <bKernel/heap.h>
 
 enum EBSortType
 {
@@ -24,28 +24,10 @@ union UBContext32
     void* pContext; // offset 0x0, size 0x4
 };
 
-struct TBDataArray
-{
-    struct TBDataElement* array; // offset 0x0, size 0x4
-    struct TBDataElement* tempArray; // offset 0x4, size 0x4
-    int maxElements; // offset 0x8, size 0x4
-    int noofElements; // offset 0xC, size 0x4
-    int flags; // offset 0x10, size 0x4
-};
-
 struct TBDataElement
 {
     float value; // offset 0x0, size 0x4
     union UBContext32 context; // offset 0x4, size 0x4
-};
-
-struct TBDataArrayWide
-{
-    struct TBDataElementWide * array; // offset 0x0, size 0x4
-    struct TBDataElementWide * tempArray; // offset 0x4, size 0x4
-    int maxElements; // offset 0x8, size 0x4
-    int noofElements; // offset 0xC, size 0x4
-    int flags; // offset 0x10, size 0x4
 };
 
 struct TBDataElementWide
@@ -56,30 +38,58 @@ struct TBDataElementWide
     union UBContext32 context2; // offset 0xC, size 0x4
 };
 
+struct TBDataArray
+{
+    TBDataElement* array; // offset 0x0, size 0x4
+    TBDataElement* tempArray; // offset 0x4, size 0x4
+    int maxElements; // offset 0x8, size 0x4
+    int noofElements; // offset 0xC, size 0x4
+    int flags; // offset 0x10, size 0x4
+};
+
+struct TBDataArrayWide
+{
+    TBDataElementWide * array; // offset 0x0, size 0x4
+    TBDataElementWide * tempArray; // offset 0x4, size 0x4
+    int maxElements; // offset 0x8, size 0x4
+    int noofElements; // offset 0xC, size 0x4
+    int flags; // offset 0x10, size 0x4
+};
+
+TBDataArray* bmDataArrayCreate(int maxElements, int flags);
+TBDataArrayWide* bmDataArrayCreateWide(int maxElements, int flags);
 
 inline void bmDataArrayAddElement(TBDataArray* data, float value, void* context)
 {
 
 }
 
-inline void bmDataArrayClear(TBDataArrayWide* data)
+inline void bmDataArrayAddElement(TBDataArrayWide* data, float value, void* context)
 {
 
+}
+
+inline void bmDataArrayClear(TBDataArray* data)
+{
+    data->noofElements = 0;
+}
+
+inline void bmDataArrayClear(TBDataArrayWide* data)
+{
+    data->noofElements = 0;
 }
 
 inline void bmDataArrayDelete(TBDataArray* data)
 {
-
+    bkHeapFree(data);
 }
 
 inline void bmDataArrayDelete(TBDataArrayWide* data)
 {
-
+    bkHeapFree(data);
 }
-
-DEFINE_UNIT_STRING(UnimplementedSortType, "bDataArraySort: Unimplemented sort type\n");
 
 inline void bmDataArraySort(TBDataArray* data, enum EBSortType type)
 {
-    bPrintError((char*)UNIT_DATA(UnimplementedSortType, "bDataArraySort: Unimplemented sort type\n"));
+    bPrintError("bDataArraySort: Unimplemented sort type\n");
 }

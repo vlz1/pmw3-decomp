@@ -151,7 +151,7 @@ static inline unsigned char* EnsureAllocBkg(unsigned char* dataPtr, int size)
         if ((u32)group == 0xDEFA)
             group = "Package";
 
-        void* data = bkHeapAllocEx(size, (char*)UNIT_DATA(File, "File"), 0, 0x2001, (u32)group, 0);
+        void* data = bkHeapAllocEx(size, (char*)"File", 0, 0x2001, (u32)group, 0);
         if (data == NULL)
         {
             int largest;

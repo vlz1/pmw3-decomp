@@ -2,7 +2,6 @@
 
 #include <dolphin/types.h>
 #include <dolphin/os/OSMutex.h>
-#include <InlineUnitData.h>
 
 struct _TBHeapBlock
 {
@@ -90,14 +89,24 @@ void bkHeapDeactivatePool(struct _TBHeapPool* pool, int finalise);
 
 u32 bGetCurrentGroup();
 
-#define HEAPALLOC_FLAGS_MALLOC  0x2000
-#define HEAPALLOC_FLAGS_NEW     0x1000
+#define HEAP_FLAGS_MALLOC  0x2000
+#define HEAP_FLAGS_NEW     0x1000
 
-DEFINE_UNIT_STRING(File, "File");
+#define HEAP_MODULE_GAME      0x01
+#define HEAP_MODULE_ACTOR     0x02
+#define HEAP_MODULE_DISPLAY   0x03
+#define HEAP_MODULE_SAVE      0x05
+#define HEAP_MODULE_KERNEL    0x06
+#define HEAP_MODULE_MATHS     0x07
+#define HEAP_MODULE_COLLISION 0x09
+#define HEAP_MODULE_SOUND     0x0A
+#define HEAP_MODULE_FLARE     0x0D
+
+#define HEAP_ALLOC(size, module) bkHeapAlloc(size, "File", 0, HEAP_FLAGS_MALLOC | module)
 
 inline void* bkMalloc(unsigned int size)
 {
-    return bkHeapAlloc(size, (char*)UNIT_DATA(File, "File"), 0, HEAPALLOC_FLAGS_MALLOC | 1);
+    return bkHeapAlloc(size, "File", 0, HEAP_FLAGS_MALLOC | HEAP_MODULE_GAME);
 }
 
 inline void bkFree(void* ptr)

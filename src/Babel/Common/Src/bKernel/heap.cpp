@@ -58,11 +58,11 @@ void bShutdownHeap()
                 name = "Default";
 
             buf2[0] = '\0';
-            if ((block->flags & HEAPALLOC_FLAGS_MALLOC) != 0)
+            if ((block->flags & HEAP_FLAGS_MALLOC) != 0)
             {
                 strcpy(buf3, "Malloc");
             }
-            else if (block->flags & HEAPALLOC_FLAGS_NEW)
+            else if (block->flags & HEAP_FLAGS_NEW)
             {
                 strcpy(buf3, "New");
             }
@@ -523,8 +523,8 @@ void* bkHeapRealloc(void* ptr, int newSize)
 
     if (ptr == NULL)
     {
-        char* file = (char*)UNIT_DATA(File, "File");
-        return (void*)bkHeapAllocEx(newSize, file, 0, HEAPALLOC_FLAGS_MALLOC | 6, bGetCurrentGroup(), 0);
+        char* file = "File";
+        return (void*)bkHeapAllocEx(newSize, file, 0, HEAP_FLAGS_MALLOC | 6, bGetCurrentGroup(), 0);
     }
 
     if (newSize == 0)
@@ -672,7 +672,7 @@ TBHeapPool* bHeapCreatePool(unsigned int size, void* memPtr)
     }
     else
     {
-        char* file = (char*)UNIT_DATA(File, "File");
+        char* file = "File";
         pool->userAllocated = 0;
         pool->base = (u8*)bkHeapAllocEx(size, file, 0, 0x2006, bGetCurrentGroup(), 0);
     }

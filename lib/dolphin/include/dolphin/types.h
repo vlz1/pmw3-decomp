@@ -35,11 +35,11 @@ typedef int BOOL;
 
 #define INT_MAX 2147483647
 
-#ifndef NULL
-#define NULL ((void*)0)
-#endif
-
 #if !defined(__GNUC__)
+    #ifndef NULL
+        #define NULL ((void*)0)
+    #endif
+
     #include "libc/stdio.h"
     #include "libc/stdarg.h"
     #include "libc/string.h"
@@ -47,5 +47,9 @@ typedef int BOOL;
 
     #include "cmath.h"
 #endif
+    #ifndef NULL
+        #define NULL 0
+    #endif
+
     #include <stdarg.h>
 #endif

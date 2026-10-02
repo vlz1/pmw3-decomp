@@ -36,7 +36,7 @@ int bkCreateEvent(char* eventName)
         return 1;
     }
 
-    event = (TBEvent*)bkHeapAllocEx(sizeof(TBEvent), (char*)UNIT_DATA(File, "File"), 0, 0x2001, (u32)"Event", 0);
+    event = (TBEvent*)bkHeapAllocEx(sizeof(TBEvent), (char*)"File", 0, 0x2001, (u32)"Event", 0);
     if (!event)
     {
         bkReleaseMutex(&eventMutex);
@@ -166,7 +166,7 @@ TBEventClient* bkTrapEventCallback(char* eventName, TBEventCallback callback, vo
     if (event == NULL)
         return NULL;
 
-    client = (TBEventClient*)bkHeapAllocEx(sizeof(TBEventClient), (char*)UNIT_DATA(File, "File"), 0, 0x2001, (u32)"Event Client (Callback)", 0);
+    client = (TBEventClient*)bkHeapAllocEx(sizeof(TBEventClient), (char*)"File", 0, 0x2001, (u32)"Event Client (Callback)", 0);
     if (client == NULL)
         return NULL;
 
@@ -189,7 +189,7 @@ TBEventClient * bkTrapEventQueue(char* eventName, int queueSize, unsigned int fl
     if (event == NULL)
         return NULL;
 
-    client = (TBEventClient*)bkHeapAllocEx((sizeof(TBEventEntry) * queueSize) + sizeof(TBEventClient), (char*)UNIT_DATA(File, "File"), 0, 0x2001, (u32)"Event Client (Queue)", 0);
+    client = (TBEventClient*)bkHeapAllocEx((sizeof(TBEventEntry) * queueSize) + sizeof(TBEventClient), (char*)"File", 0, 0x2001, (u32)"Event Client (Queue)", 0);
     if (client == NULL)
         return NULL;
 

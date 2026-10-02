@@ -17,6 +17,7 @@
 #include <bKernel/language.h>
 #include <bKernel/resource.h>
 #include <bKernel/stringTable.h>
+#include <bKernel/commandLine.h>
 #include <bKernel/GameCube/gcFileHandle.h>
 #include <bKernel/GameCube/gcTimer.h>
 
@@ -309,7 +310,7 @@ int bkLoadFilenameTable(TBPackageIndex* index, char* filename)
     
     table = (TBFilenameTableHeader*)bkHeapAllocEx(
         sizeof(TBFilenameTableHeader) + ALIGN_UP(index->filenameTableSize, 64) + ALIGN_UP((index->noofFiles * 8), 64), 
-        (char*)UNIT_DATA(File, "File"), 
+        "File", 
         0, 
         0x2001,
         (unsigned int)"Filename Table",
@@ -340,7 +341,7 @@ int bkLoadFilenameTable(TBPackageIndex* index, char* filename)
         ++file;
     }
 
-    filenameData = (char*)table + 0x114 + (ALIGN_UP(index->noofFiles * 8, 64));
+    filenameData = (char*)table + sizeof(TBFilenameTableHeader) + (ALIGN_UP(index->noofFiles * 8, 64));
 
     if (!index->id.loaded)
     {
@@ -489,7 +490,7 @@ static unsigned char* bEnsureAlloc(unsigned char* dataPtr, int size)
         if ((u32)group == 0xDEFA)
             group = "Package";
 
-        void* data = bkHeapAllocEx(size, (char*)UNIT_DATA(File, "File"), 0, 0x2001, (u32)group, 0);
+        void* data = bkHeapAllocEx(size, (char*)"File", 0, 0x2001, (u32)group, 0);
         if (data == NULL)
         {
             int largest;
@@ -524,7 +525,7 @@ TBPackageIndex* bOpenPackage(char* filename)
 
     sprintf(buf, "%s%s", filename, ".gcp");
 
-    index = (TBPackageIndex*)bkHeapAlloc(sizeof(TBPackageIndex), (char*)UNIT_DATA(File, "File"), 0, 0x2006);
+    index = (TBPackageIndex*)bkHeapAlloc(sizeof(TBPackageIndex), (char*)"File", 0, 0x2006);
     if (index == NULL)
     {
         if (bVerboseModule & MODULE_KERNEL)
@@ -586,7 +587,7 @@ TBPackageIndex* bOpenPackage(char* filename)
     bkSeekFile(index->fp, index->indexOffset * index->pauSize, EHOSTSEEK_SET);
     index->index = (TBFileIndex*)bkHeapAlloc(
         sizeof(TBFileIndex) * index->noofFiles,
-        (char*)UNIT_DATA(File, "File"),
+        (char*)"File",
         0,
         0x2006);
     if (!index->index)
@@ -616,11 +617,7 @@ TBPackageIndex* bOpenPackage(char* filename)
     if (index->noofTags != 0)
     {
         bkSeekFile(index->fp, index->tagOffset * index->pauSize, EHOSTSEEK_SET);
-        index->tags = (unsigned int*)bkHeapAlloc(
-            sizeof(unsigned int) * index->noofTags,
-            (char*)UNIT_DATA(File, "File"),
-            0,
-            0x2006);
+        index->tags = (unsigned int*)HEAP_ALLOC(sizeof(unsigned int) * index->noofTags, HEAP_MODULE_KERNEL);
         bkReadFromFile(index->fp, index->tags, sizeof(unsigned int) * index->noofTags);
     }
 
@@ -1038,7 +1035,7 @@ TBDebugStream* bkCreateDebugStream(TBDebugStream* stream, char* filename, unsign
 {
     if (stream == NULL)
     {
-        stream = (TBDebugStream*)bkHeapAlloc(sizeof(TBDebugStream), (char*)UNIT_DATA(File, "File"), 0, 0x2006);
+        stream = (TBDebugStream*)HEAP_ALLOC(sizeof(TBDebugStream), HEAP_MODULE_KERNEL);
         if (stream == NULL)
             return NULL;
         flags |= 1;
@@ -1200,7 +1197,7 @@ int bkFreePackageMemory(TBPackageIndex** index)
     if (((*index)->flags & 2) == 0)
         return 1;
 
-    newIndex = (TBPackageIndex*)bkHeapAlloc(sizeof(TBPackageIndex), (char*)UNIT_DATA(File, "File"), 0, 0x2006);
+    newIndex = (TBPackageIndex*)HEAP_ALLOC(sizeof(TBPackageIndex), HEAP_MODULE_KERNEL);
 
     memcpy(newIndex, *index, sizeof(TBPackageIndex));
 

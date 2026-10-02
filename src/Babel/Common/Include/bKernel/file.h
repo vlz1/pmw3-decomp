@@ -12,6 +12,9 @@ typedef enum EBHostSeekMode EBHostSeekMode;
 struct _TBFileHandleType;
 typedef struct _TBFileHandleType TBFileHandleType;
 
+extern char* bFileSearchPath[4];
+extern int bFileSearchPaths;
+
 int bkOpenFileReadOnly(char* filename, TBFileHandleType** fpPtr);
 int bkOpenFileReadOnlyWithSearch(char* filename, TBFileHandleType** fp, char* fullpath, int maxlen, int flags);
 void bkSeekFile(TBFileHandleType* fp, int position, EBHostSeekMode mode);

@@ -1,0 +1,51 @@
+#include <bKernel/heap.h>
+#include <feCore/SysVar.h>
+
+u64 lbl_8048D680 = 0;
+
+DECLARE_INT_FSYSVAR(DISPLAY_XRES, 512, "x", "xres");
+DECLARE_INT_FSYSVAR(DISPLAY_YRES, 448, "y", "yres");
+DECLARE_INT_FSYSVAR(DISPLAY_BPP, 32, "b", "bpp");
+DECLARE_INT_FSYSVAR(DISPLAY_ZDEPTH, 32, "z", "zdepth");
+DECLARE_INT_FSYSVAR(DISPLAY_FLAGS, 0, "df", "dispflags");
+DECLARE_INT_FSYSVAR(EMULATE_PSP_CLIPPING, 0, "pspclip", "pspclipping");
+DECLARE_INT_FSYSVAR(DEFAULT_HEAP_SIZE, 0x5000, "hs", "heapsize");
+DECLARE_INT_FSYSVAR(BKINIT_FLAGS, 0x204, "if", "initflags");
+DECLARE_INT_FSYSVAR(TARGET_FPS, 60, "f", "fps");
+DECLARE_INT_FSYSVAR(MANAGELIGHTS, 1, "ml", "managelights");
+DECLARE_INT_FSYSVAR(PALMODE, 0, "pal", "palmode");
+DECLARE_INT_FSYSVAR(SUPPORTED_LANGUAGES, 0xC1F, "langs", "langs");
+DECLARE_INT_FSYSVAR(DEBUGCAMERA_SWAPSTICKS, 0, "dcss", "debugswapsticks");
+DECLARE_INT_FSYSVAR(DEBUGCAMERA_INVERTXAXIS, 0, "dcix", "debuginvertxaxis");
+DECLARE_INT_FSYSVAR(DEBUGCAMERA_INVERTYAXIS, 0, "dciy", "debuginvertyaxis");
+DECLARE_INT_FSYSVAR(DEBUGCAMERA_PCINPUT, 1, "dcpc", "debugcampcinput");
+DECLARE_INT_FSYSVAR(DEBUGPAD, 0, "dp", "debugpad");
+DECLARE_INT_FSYSVAR(SHOWFPS, 0, "sf", "showfps");
+DECLARE_INT_FSYSVAR(SHOWHEAP, 0, "sh", "showheap");
+DECLARE_INT_FSYSVAR(SHOWSAFEFRAME, 0, "ss", "showsafeframe");
+DECLARE_INT_FSYSVAR(HEAPPOOLING, 1, "pool", "pooling");
+DECLARE_INT_FSYSVAR(DISPLAY_FULLSCREEN, 0, "fs", "fullscreen");
+DECLARE_INT_FSYSVAR(VERBOSELEVEL, 4, "vl", "verboselevel");
+DECLARE_INT_FSYSVAR(PARENTWINDOW, 0, "pw", "parentwindow");
+DECLARE_INT_FSYSVAR(USE_NET_COMMS, 1, "nc", "usenetcomms");
+DECLARE_INT_FSYSVAR(SHAREDVERTS_2D, 200, "v2d", "verts2d");
+DECLARE_INT_FSYSVAR(SHAREDVERTS_3D, 200, "v3d", "verts3d");
+DECLARE_INT_FSYSVAR(MOUSEGUI, 0, "mgui", "mousegui");
+DECLARE_INT_FSYSVAR(RESOURCELINKS, 800, "rl", "resourcelinks");
+DECLARE_INT_FSYSVAR(RENDERCALLBACKS, 8, "rc", "rendercallbacks");
+DECLARE_INT_FSYSVAR(MAX_PACKAGES, 64, "maxp", "maxpackages");
+DECLARE_INT_FSYSVAR(MAX_STREAMS, 16, "maxs", "maxstreams");
+DECLARE_INT_FSYSVAR(RESERVED_BLOCK_GROUPS, 4, "rg", "reservedgroups");
+DECLARE_INT_FSYSVAR(NO_SPLASH, 0, "ns", "nosplash");
+DECLARE_INT_FSYSVAR(NO_LOGO, 0, "nl", "nologo");
+DECLARE_INT_FSYSVAR(PROPERTYTASKPOOL, 256, "pt", "propertytasks");
+
+DECLARE_STR_FSYSVAR(LANGUAGE, "us", "lang", "language");
+DECLARE_STR_FSYSVAR(DEFAULTWORLD, "", "w", "world");
+DECLARE_STR_FSYSVAR(DEBUGFONT, "lucidaconsole", "font", "debugfont");
+DECLARE_STR_FSYSVAR(HOSTASSETS, "host_assets", "ha", "hostassets");
+DECLARE_STR_FSYSVAR(DEBUGCAMERA, "", "dcam", "debugCamera");
+DECLARE_STR_FSYSVAR(DEBUGCAMERA2, "", "cam", "camera");
+DECLARE_STR_FSYSVAR(APPLICATION_NAME, "", "app", "appname");
+
+char* fSysStrPtr;
