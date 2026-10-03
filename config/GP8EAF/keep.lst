@@ -41,6 +41,7 @@ GXInitLightSpot
 GXReadGPMetric
 __GXGetTexTileShift
 GXGetTexBufferSize
+GD2HWFiltConv
 
 translit_from_idx
 translit_from_tbl

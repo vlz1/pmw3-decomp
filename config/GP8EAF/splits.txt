@@ -438,7 +438,7 @@ dolphin/src/gx/GXTransform.c:
 
 dolphin/src/gx/GXPerf.c:
 	.text       start:0x8034D268 end:0x8034DD2C
-	.data       start:0x803C5040 end:0x803C5190
+	.data       start:0x803C5040 end:0x803C5188
 
 dolphin/src/gd/GDBase.c:
 	.text       start:0x8034DD2C end:0x8034DD74
@@ -446,3 +446,4 @@ dolphin/src/gd/GDBase.c:
 
 dolphin/src/gd/GDTexture.c:
 	.text       start:0x8034DD74 end:0x8034DE04
+	.data       start:0x803C5188 end:0x803C5190
