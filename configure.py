@@ -263,7 +263,7 @@ cflags_dolphin = [
     *cflags_base_mwcc,
     f"-i {dolphinsdk_root}/include",
     f"-i {dolphinsdk_root}/include/libc",
-    "-char unsigned",
+    "-char signed",
     "-warn pragmas",
     "-requireprotos",
     "-DSDK_REVISION=2",

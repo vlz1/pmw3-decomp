@@ -99,7 +99,7 @@ struct DVDCommandBlock {
 };
 
 typedef struct DVDFileInfo DVDFileInfo;
-typedef void (*DVDCallback)(s32 result, DVDFileInfo *fileInfo);
+typedef void (*DVDCallback)(long result, DVDFileInfo *fileInfo);
 struct DVDFileInfo {
 	/* 0x00 */ DVDCommandBlock cb;
     /* 0x30 */ u32 startAddr;
@@ -190,7 +190,7 @@ BOOL DVDChangeDir(const char* dirName);
 BOOL DVDReadAsyncPrio(DVDFileInfo* fileInfo, void* addr, s32 length, s32 offset,
                       DVDCallback callback, s32 prio);
 s32 DVDReadPrio(DVDFileInfo* fileInfo, void* addr, s32 length, s32 offset, s32 prio);
-int DVDSeekAsyncPrio(DVDFileInfo* fileInfo, s32 offset, void (* callback)(s32, DVDFileInfo *), s32 prio);
+int DVDSeekAsyncPrio(DVDFileInfo* fileInfo, s32 offset, DVDCallback callback, s32 prio);
 s32 DVDSeekPrio(DVDFileInfo* fileInfo, s32 offset, s32 prio);
 s32 DVDGetFileInfoStatus(const DVDFileInfo* fileInfo);
 BOOL DVDFastOpenDir(s32 entrynum, DVDDir* dir);
