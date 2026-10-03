@@ -274,6 +274,7 @@ cflags_dolphin = [
 cflags_babel = [
     *cflags_base_prodg,
     "-O2",
+    "-mps-float",
     "-I src/Babel/Common/Include",
     "-I src/Babel/GameCube/Include",
     "-finline-functions"
@@ -283,6 +284,7 @@ cflags_flare = [
     *cflags_base_prodg,
     "-O0",
     "-I src/Babel/Common/Include",
+    "-I src/Babel/GameCube/Include",
     "-I src/Flare/FlareEngine/Common/Include",
     "-finline-functions"
 ]
@@ -464,7 +466,7 @@ config.libs = [
             Object(NonMatching, "Units/bCollisionSourceFiles.cpp"),
             Object(NonMatching, "Units/bDisplaySourceFiles.cpp"),
             Object(NonMatching, "Units/bInputSourceFiles.cpp"),
-            Object(NonMatching, "Units/bMathsSourceFiles.cpp", cflags=[*cflags_babel, "-DCURRENT_UNIT=bMaths", "-mps-float"]),
+            Object(NonMatching, "Units/bMathsSourceFiles.cpp"),
             Object(NonMatching, "Units/bSoundSourceFiles.cpp")
         ]
     },
@@ -473,8 +475,8 @@ config.libs = [
         "cflags": cflags_flare,
         "progress_category": "flare",
         "objects": [
-            Object(NonMatching, "Units/core.cpp", cflags=[*cflags_flare, "-DCURRENT_UNIT=core"]),
-            Object(NonMatching, "Units/feCoreSourceFiles.cpp", cflags=[*cflags_flare, "-DCURRENT_UNIT=feCore"]),
+            Object(NonMatching, "Units/core.cpp"),
+            Object(NonMatching, "Units/feCoreSourceFiles.cpp"),
             Object(NonMatching, "Units/fEffectsSourceFiles.cpp"),
             Object(NonMatching, "Units/CFSystemGamecube.cpp"),
             Object(NonMatching, "Units/frRuntimeSourceFiles.cpp"),

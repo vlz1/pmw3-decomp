@@ -66,3 +66,18 @@ FORWARD_STR_FSYSVAR(DEBUGCAMERA2);
 FORWARD_STR_FSYSVAR(APPLICATION_NAME);
 
 extern char* fSysStrPtr;
+extern struct CFEnvironmentVars* feEnvVars;
+
+// Absolutely rancid
+#define GET_SYSVAR(name) \
+    (feEnvVars && \
+        ((fSysStrPtr = feEnvVars->FindVarVal(FSYSVAR_##name##_STR, NULL)) || \
+        (fSysStrPtr = feEnvVars->FindVarVal(FSYSVAR_##name##_SHORTSTR, NULL))) \
+            ? atoi(fSysStrPtr) \
+            : FSYSVAR_##name##_VAL)
+#define GET_SYSSTR(name) \
+    (feEnvVars && \
+        ((fSysStrPtr = feEnvVars->FindVarVal(FSYSSTR_##name##_STR, NULL)) || \
+        (fSysStrPtr = feEnvVars->FindVarVal(FSYSSTR_##name##_SHORTSTR, NULL))) \
+            ? fSysStrPtr \
+            : FSYSSTR_##name##_VAL)

@@ -1,17 +1,31 @@
 #ifndef _DOLPHIN_TYPES_H_
 #define _DOLPHIN_TYPES_H_
 
-typedef signed   char          s8;
-typedef unsigned char          u8;
-typedef signed   short int     s16;
-typedef unsigned short int     u16;
-typedef signed   long          s32;
-typedef unsigned long          u32;
-typedef signed   long long int s64;
-typedef unsigned long long int u64;
+// TODO: Figure out if long has different semantics than int in MWCC, because it does on GCC.
+#if defined(__GNUC__)
+    typedef signed   char          s8;
+    typedef unsigned char          u8;
+    typedef signed   short int     s16;
+    typedef unsigned short int     u16;
+    typedef signed   int           s32;
+    typedef unsigned int           u32;
+    typedef signed   long long int s64;
+    typedef unsigned long long int u64;
+#else
+    typedef signed   char          s8;
+    typedef unsigned char          u8;
+    typedef signed   short int     s16;
+    typedef unsigned short int     u16;
+    typedef signed   long          s32;
+    typedef unsigned long          u32;
+    typedef signed   long long int s64;
+    typedef unsigned long long int u64;
+#endif
 
 typedef float  f32;
 typedef double f64;
+typedef volatile float  vf32;
+typedef volatile double vf64;
 
 typedef char *Ptr;
 

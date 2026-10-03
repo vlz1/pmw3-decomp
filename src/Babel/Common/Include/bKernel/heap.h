@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stddef.h>
 #include <dolphin/types.h>
 #include <dolphin/os/OSMutex.h>
 
@@ -75,15 +76,20 @@ struct _TBHeap
 
 typedef struct _TBHeap TBHeap;
 
+void* operator new(unsigned int size, char* file, int line, unsigned short flags);
+void* operator new[](unsigned int size, char* file, int line, unsigned short flags);
+
 void* bkHeapRealloc(void* ptr, int newSize);
 void* bkHeapAlloc(unsigned int size, char* file, int line, unsigned short flags);
 void* bkHeapAllocEx(unsigned int size, char* file, int line, unsigned short flags, unsigned int group, int alignment);
 void* bkHeapCalloc(unsigned int size, int value, char* file, int line, unsigned short flags);
 void* bkHeapCallocEx(unsigned int size, int value, char* file, int line, unsigned short flags, unsigned int group, int alignment);
 void bkHeapFree(void* ptr);
+void bkHeapSetLargeBlockThreshold(unsigned int value);
+unsigned int bkHeapGetLargeBlockThreshold();
 int bkHeapGetBlockSize(void* ptr);
-
 int bkHeapFreeSpace(int* largestFreeBlock);
+int bkHeapEnablePooling(int enable);
 void bkHeapActivatePool(struct _TBHeapPool* pool);
 void bkHeapDeactivatePool(struct _TBHeapPool* pool, int finalise);
 
@@ -104,7 +110,7 @@ u32 bGetCurrentGroup();
 
 #define HEAP_ALLOC(size, module) bkHeapAlloc(size, "File", 0, HEAP_FLAGS_MALLOC | module)
 
-inline void* bkMalloc(unsigned int size)
+inline void* bkMalloc(size_t size)
 {
     return bkHeapAlloc(size, "File", 0, HEAP_FLAGS_MALLOC | HEAP_MODULE_GAME);
 }

@@ -5,8 +5,11 @@
 #include <bKernel/debug.h>
 #include <bKernel/commandLine.h>
 #include <feCore/CFEnvironmentVars.h>
+#include <feCore/SysVar.h>
 
-CFEnvironmentVars* feEnvVars = NULL;
+CFEnvironmentVars* feEnvVars;
+u32 feHeapSize = 0x5000;
+u32 feInitFlags = 0x204;
 
 CFEnvironmentVars::CFEnvironmentVars()
     : index(NULL), indexSize(0), indexMax(0)
@@ -187,6 +190,113 @@ void CFEnvironmentVars::fFromCommandLine()
             else
             {
                 SetVar(bufPtr, NULL, 0);
+            }
+
+            bufPtr = nextBufPtr;
+        } while (bufPtr);
+    }
+}
+
+#define MATCH_VAR_NAME(v, str, shortstr) (strcasecmp(var, str) == 0 || strcasecmp(var, shortstr) == 0)
+#define IS_VALUE_TRUE(v) (strcasecmp(v, "TRUE") == 0 || strcasecmp(v, "1") == 0)
+
+static void setInitInfoValue(char* var, char* value)
+{
+    if (MATCH_VAR_NAME(var, "heapsize", "hs"))
+    {
+        feHeapSize = atoi(value);
+    }
+    else if (MATCH_VAR_NAME(var, "nonexclusive", "nex"))
+    {
+        if (IS_VALUE_TRUE(value))
+            feInitFlags |= 1;
+        else
+            feInitFlags &= ~1;
+    }
+    else if (MATCH_VAR_NAME(var, "exclusive", "ex"))
+    {
+        if (!IS_VALUE_TRUE(value))
+            feInitFlags |= 1;
+        else
+            feInitFlags &= ~1;
+    }
+    else if (MATCH_VAR_NAME(var, "verboseresources", "vr"))
+    {
+        if (IS_VALUE_TRUE(value))
+            feInitFlags |= 2;
+        else
+            feInitFlags &= ~2;
+    }
+    else if (MATCH_VAR_NAME(var, "nodebugoutput", "nd"))
+    {
+        if (IS_VALUE_TRUE(value))
+            feInitFlags |= 8;
+        else
+            feInitFlags &= ~8;
+    }
+}
+
+void GetInitInfoFromCommandLine()
+{
+    int argc;
+    int l;
+    int len;
+    char** argv;
+    char* cp;
+    char* bufPtr;
+    char* nextBufPtr;
+    char buf[512];
+
+    feHeapSize = GET_SYSVAR(DEFAULT_HEAP_SIZE);
+    feInitFlags = GET_SYSVAR(BKINIT_FLAGS);
+
+    if (feInitFlags & 0x4000)
+        return;
+
+    bkGetCommandLine(&argc, &argv);
+
+    for (l = 0; l < argc; ++l)
+    {
+        strcpy(buf, argv[l]);
+        bufPtr = buf;
+
+        do
+        {
+            cp = strchr(bufPtr, 0x95);
+            if (cp)
+            {
+                *cp = '\0';
+                nextBufPtr = cp + 1;
+            }
+            else
+            {
+                nextBufPtr = NULL;
+            }
+
+            bkPrintf("%d: %s\n", l, bufPtr);
+
+            cp = strchr(bufPtr, '=');
+            if (cp)
+            {
+                len = strlen(cp);
+                if (cp[1] == '\"' && cp[len - 1] == '\"')
+                {
+                    cp[len - 1] = '\0';
+                    *cp = '\0';
+                    setInitInfoValue(bufPtr, cp + 2);
+                    cp[len - 1] = '\"';
+                    *cp = '=';
+                }
+                else
+                {
+                    *cp = '\0';
+                    setInitInfoValue(bufPtr, cp + 1);
+                    *cp = '=';
+                }
+            }
+            else
+            {
+                setInitInfoValue(bufPtr, "TRUE");
             }
 
             bufPtr = nextBufPtr;

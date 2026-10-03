@@ -2,8 +2,18 @@
 #include <bKernel/heap.h>
 #include <bKernel/crc32.h>
 #include <bKernel/file.h>
+#include <bKernel/main.h>
+#include <bKernel/debug.h>
+#include <bKernel/verbosity.h>
 #include <feCore/CFFactoryClass.h>
 #include <feCore/CFEnvironmentVars.h>
+#include <feCore/TFValidationHandle.h>
+#include <feCore/SysVar.h>
+
+extern u32 feHeapSize;
+extern u32 feInitFlags;
+
+extern void feClientInit(int* pnHeapSize, unsigned int* pun32InitFlags, void** ppHeapBase);
 
 struct TRegisteredClass
 {
@@ -14,6 +24,7 @@ struct TRegisteredClass
 
 static struct TRegisteredClass registeredClasses[256];
 static int noofRegisteredClasses = 0;
+unsigned int TFValidationHandle::lastHandle = 1;
 
 CFFactoryClass* feCreateClass(unsigned int nameCrc);
 
@@ -173,5 +184,28 @@ void ProcessModeEnvCommands()
 
 void fMain(void* context)
 {
-    
+    char* eval;
+    int heapSize; // r1+0x8
+    int heapPooling; // r30
+    unsigned int flags; // r1+0xC
+    void* basePtr; // r1+0x10
+
+    basePtr = NULL;
+    _register_malloc = bkMalloc;
+    _register_free = bkFree;
+
+    GetInitInfoFromCommandLine();
+
+    heapSize = feHeapSize;
+    flags = feInitFlags;
+
+    feClientInit(&heapSize, &flags, &basePtr);
+
+    if (!bkInit(basePtr, heapSize << 10, flags))
+    {
+        bkAlert("Error during Babel initialisation");
+        return;
+    }
+
+    feEnvVars = new("File", 0, HEAP_FLAGS_NEW | HEAP_MODULE_FLARE) CFEnvironmentVars();
 }

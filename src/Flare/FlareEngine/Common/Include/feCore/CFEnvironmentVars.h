@@ -25,3 +25,5 @@ struct CFEnvironmentVars
 };
 
 extern CFEnvironmentVars* feEnvVars;
+
+void GetInitInfoFromCommandLine();

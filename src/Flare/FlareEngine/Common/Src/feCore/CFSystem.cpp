@@ -5,21 +5,8 @@
 #include <bKernel/language.h>
 #include <feCore/CFSystem.h>
 #include <feCore/CFEnvironmentVars.h>
+#include <feCore/TFValidationHandle.h>
 #include <feCore/SysVar.h>
-
-// Absolutely rancid
-#define GET_SYSVAR(name) \
-    (feEnvVars && \
-        ((fSysStrPtr = feEnvVars->FindVarVal(FSYSVAR_##name##_STR, NULL)) || \
-        (fSysStrPtr = feEnvVars->FindVarVal(FSYSVAR_##name##_SHORTSTR, NULL))) \
-            ? atoi(fSysStrPtr) \
-            : FSYSVAR_##name##_VAL)
-#define GET_SYSSTR(name) \
-    (feEnvVars && \
-        ((fSysStrPtr = feEnvVars->FindVarVal(FSYSSTR_##name##_STR, NULL)) || \
-        (fSysStrPtr = feEnvVars->FindVarVal(FSYSSTR_##name##_SHORTSTR, NULL))) \
-            ? fSysStrPtr \
-            : FSYSSTR_##name##_VAL)
 
 CFSystem::CFSystem()
 {
